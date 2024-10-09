@@ -23,19 +23,47 @@
 
     <script type="module" src="src/game.js"></script>
     <script>
-      const outerspace = document.getElementById('starouterspace');
+       const outerspace = document.querySelector('#starouterspace');
+      const mainContext = outerspace.getContext("2d");
       const canvasWidth = window.innerWidth;
       const canvasHeight = window.innerHeight;
+
+
+      let numberOfStars= 500;
+      let star = [];
+
+      // Set canvas size
+      outerspace.width = canvasWidth;
+      outerspace.height = canvasHeight;
+
 
       class Star {
         constructor() {
           this.x = getRandomInt(0, canvasWidth);
           this.y = getRandomInt(0, canvasHeight);
+
+          this.radius = 1 * Math.random() * 10; 
+          this.context = mainContext;
         }
-      }
+      
+        drawStar() {
+          this.context.beginPath();
+          this.context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+          this.context.closePath();
+          this.context.fillStyle = "#FFF"; // White stars
+          this.context.fill();
+        }
+    }
+
+    function setup(){
+        for(let i=0; 1<numberOfStars; i++){
+            stars.push(new Star());
+                }
+    }
+    setup();
 
       function getRandomInt(min, max) {
-        return Math.floor(Math.random() * (max - min) + min);
+        return Math.floor(Math.random() * (max - min * 1)) + min;
       }
     </script>
   </body>
