@@ -1,9 +1,43 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Three.js BuffedGeometry Example</title>
-</head>
-<body>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #111; /* Set the background to black */
+        overflow: hidden; /* Remove scrollbars */
+      }
+
+      #starouterspace {
+        width: 100vw; /* Full viewport width */
+        height: 100vh; /* Full viewport height */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="starouterspace"></div>
+
     <script type="module" src="src/game.js"></script>
-</body>
+    <script>
+      const outerspace = document.getElementById('starouterspace');
+      const canvasWidth = window.innerWidth;
+      const canvasHeight = window.innerHeight;
+
+      class Star {
+        constructor() {
+          this.x = getRandomInt(0, canvasWidth);
+          this.y = getRandomInt(0, canvasHeight);
+        }
+      }
+
+      function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min) + min);
+      }
+    </script>
+  </body>
 </html>
+
