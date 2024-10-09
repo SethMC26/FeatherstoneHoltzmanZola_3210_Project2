@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Three.js Infinite Starfield</title>
+    <title>Three.js Dual Camera View with Infinite Starfield with Asteroids</title>
     <style>
       body {
         margin: 0;
@@ -19,20 +19,22 @@
         camera,
         renderer,
         stars = [],
-        starCount = 1000;
+        asteroids = [];
+      let starCount = 1000,
+        asteroidCount = 40;
 
       function init() {
         // Create the scene
         scene = new THREE.Scene();
 
-        // Create the camera
+        // Create 2 cameras for front and rear-view 
         camera = new THREE.PerspectiveCamera(
           75, // Field of view
           window.innerWidth / window.innerHeight, // Aspect ratio
           0.1, // Near plane
           1000 // Far plane
         );
-        camera.position.z = 500; // Move the camera back to see the stars
+        camera.position.z = 500; // Move the camera back to see the stars and asteroids
 
         // Create the renderer and add it to the document
         renderer = new THREE.WebGLRenderer();
@@ -42,6 +44,9 @@
         // Create the stars (particles)
         createStars();
 
+        // Create the asteroids (3D objects)
+        createAsteroids();
+
         // Handle window resize
         window.addEventListener("resize", onWindowResize, false);
 
@@ -49,6 +54,7 @@
         animate();
       }
 
+      // Function to create the starfield
       function createStars() {
         let geometry = new THREE.BufferGeometry();
         let positions = new Float32Array(starCount * 3); // X, Y, Z for each star
@@ -79,10 +85,46 @@
         stars.push(starField);
       }
 
+      // Create asteroid objects
+      function createAsteroids() {
+        let geometry = new THREE.IcosahedronGeometry(10, 1); // Create a base asteroid geometry (Icosahedron)
+        let material = new THREE.MeshStandardMaterial({
+          color: 0xa52a2a, // Brown asteroid
+          flatShading: true, // Gives it a rugged look
+        });
+
+        for (let i = 0; i < asteroidCount; i++) {
+          let asteroid = new THREE.Mesh(geometry, material);
+
+          // Randomize the position, size, and rotation of each asteroid
+          asteroid.position.x = THREE.MathUtils.randFloatSpread(1000); // Random x position
+          asteroid.position.y = THREE.MathUtils.randFloatSpread(1000); // Random y position
+          asteroid.position.z = THREE.MathUtils.randFloat(0, 1000); // Random z (depth)
+
+          // Randomize the size of the asteroid
+          let scale = THREE.MathUtils.randFloat(0.5, 3);
+          asteroid.scale.set(scale, scale, scale);
+
+          // Randomize the rotation
+          asteroid.rotation.x = Math.random() * Math.PI;
+          asteroid.rotation.y = Math.random() * Math.PI;
+
+          // Add a basic light source
+          let light = new THREE.DirectionalLight(0xffffff, 0.5);
+          light.position.set(0, 0, 1000);
+          scene.add(light);
+
+          // Add the asteroid to the scene
+          scene.add(asteroid);
+          asteroids.push(asteroid);
+        }
+      }
+
+      // Update starfield and asteroids
       function animate() {
         requestAnimationFrame(animate);
 
-        // Move the camera forward through the stars
+        // Move stars forward
         stars.forEach((starField) => {
           let positions = starField.geometry.attributes.position.array;
           for (let i = 0; i < positions.length; i += 3) {
@@ -95,14 +137,30 @@
               positions[i + 1] = THREE.MathUtils.randFloatSpread(1000); // Randomize y position
             }
           }
-          // Update geometry after modifications
-          starField.geometry.attributes.position.needsUpdate = true;
+          starField.geometry.attributes.position.needsUpdate = true; // Mark as needing update
+        });
+
+        // Move asteroids forward
+        asteroids.forEach((asteroid) => {
+          asteroid.position.z -= 2; // Move closer along z-axis
+
+          // Rotate the asteroid for visual effect
+          asteroid.rotation.x += 0.01;
+          asteroid.rotation.y += 0.01;
+
+          // Reset the asteroid if it's behind the camera
+          if (asteroid.position.z < 0) {
+            asteroid.position.z = 1000; // Reset to far distance
+            asteroid.position.x = THREE.MathUtils.randFloatSpread(1000); // Randomize x position
+            asteroid.position.y = THREE.MathUtils.randFloatSpread(1000); // Randomize y position
+          }
         });
 
         // Render the scene from the perspective of the camera
         renderer.render(scene, camera);
       }
 
+      // Handle window resizing
       function onWindowResize() {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
