@@ -1,116 +1,116 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Starfield Example</title>
+    <title>Three.js Infinite Starfield</title>
     <style>
-      html,
       body {
         margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        background-color: #111; /* Set the background to dark */
-        overflow: hidden; /* Hide scrollbars */
+        overflow: hidden;
       }
-
       canvas {
-        display: block; /* Remove default spacing */
+        display: block;
       }
     </style>
   </head>
   <body>
-    <canvas id="outerspace" height="500" width="500"></canvas>
-
-    <script type="module" src="src/game.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-      // Query the canvas element
-      let outerspace = document.querySelector("#outerspace");
-      let mainContext = outerspace.getContext("2d");
-      let canvasWidth, canvasHeight;
+      let scene,
+        camera,
+        renderer,
+        stars = [],
+        starCount = 1000;
 
-      let centerX = canvasWidth * 0.5;
-      let centerY = canvasHeight * 0.5;
+      function init() {
+        // Create the scene
+        scene = new THREE.Scene();
 
-      // Adjust canvas size to full screen
-      function resizeCanvas() {
-        canvasWidth = window.innerWidth;
-        canvasHeight = window.innerHeight;
-        outerspace.width = canvasWidth;
-        outerspace.height = canvasHeight;
-      }
-
-      window.addEventListener("resize", resizeCanvas); // Resize on window change
-      resizeCanvas(); // Initial sizing
-
-      let numberOfStars = 500;
-      let stars = [];
-
-      // Star class
-      class Star {
-        constructor() {
-          this.x = getRandomInt(0, canvasWidth);
-          this.y = getRandomInt(0, canvasHeight);
-          this.counter = canvasWidth;
-          this.radius = 1 + Math.random() * 10;
-          this.context = mainContext;
-        }
-
-        drawStar() {
-          this.counter -= 1;
-
-          let xRatio = this.x / this.counter;
-          let yRatio = this.y / this.counter;
-
-          let starX = remap(xRatio, 0, 1, 0, canvasWidth);
-          let starY = remap(yRatio, 0, 1, 0, canvasHeight);
-
-          mainContext.beginPath();
-          mainContext.arc(starX, starY, this.radius, 0, Math.PI * 2, false);
-          mainContext.closePath();
-          mainContext.fillStyle = "#FFF"; // White stars
-          mainContext.fill();
-        }
-      }
-
-      // Initialize stars
-      function setup() {
-        for (let i = 0; i < numberOfStars; i++) {
-          stars.push(new Star());
-        }
-      }
-      setup();
-
-      // Draw all stars on the canvas
-      function draw() {
-        mainContext.clearRect(0, 0, canvasWidth, canvasHeight);
-        mainContext.fillStyle = "#111";
-        mainContext.fillRect(0, 0, canvasWidth, canvasHeight); // Clear the canvas before drawing
-        for (let i = 0; i < stars.length; i++) {
-          stars[i].drawStar();
-        }
-        requestAnimationFrame(draw);
-      }
-      draw();
-
-      // Function to generate random integers between min and max
-      function getRandomInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-      }
-
-      //SOURCE: https://www.kirupa.com/animations/animated_3d_starfield_effect.htm
-      function remap(value, istart, istop, ostart, ostop) {
-        // Ensure values are numerical to avoid potential errors
-        value = Number(value);
-        istart = Number(istart);
-        istop = Number(istop);
-        ostart = Number(ostart);
-        ostop = Number(ostop);
-
-        // Perform the mapping calculation
-        return (
-          ostart + (ostop - ostart) * ((value - istart) / (istop - istart))
+        // Create the camera
+        camera = new THREE.PerspectiveCamera(
+          75, // Field of view
+          window.innerWidth / window.innerHeight, // Aspect ratio
+          0.1, // Near plane
+          1000 // Far plane
         );
+        camera.position.z = 500; // Move the camera back to see the stars
+
+        // Create the renderer and add it to the document
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Create the stars (particles)
+        createStars();
+
+        // Handle window resize
+        window.addEventListener("resize", onWindowResize, false);
+
+        // Start the animation loop
+        animate();
       }
+
+      function createStars() {
+        let geometry = new THREE.BufferGeometry();
+        let positions = new Float32Array(starCount * 3); // X, Y, Z for each star
+
+        for (let i = 0; i < starCount; i++) {
+          // Randomly position the stars within a large cube
+          positions[i * 3] = THREE.MathUtils.randFloatSpread(1000); // x
+          positions[i * 3 + 1] = THREE.MathUtils.randFloatSpread(1000); // y
+          positions[i * 3 + 2] = THREE.MathUtils.randFloat(0, 1000); // z (depth)
+        }
+
+        // Set the star positions as geometry
+        geometry.setAttribute(
+          "position",
+          new THREE.BufferAttribute(positions, 3)
+        );
+
+        // Create the material for stars (white points)
+        let material = new THREE.PointsMaterial({
+          color: 0xffffff,
+          size: 2, // Size of each point (star)
+          sizeAttenuation: true, // Makes the size diminish with distance
+        });
+
+        // Create the star particle system
+        let starField = new THREE.Points(geometry, material);
+        scene.add(starField);
+        stars.push(starField);
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+
+        // Move the camera forward through the stars
+        stars.forEach((starField) => {
+          let positions = starField.geometry.attributes.position.array;
+          for (let i = 0; i < positions.length; i += 3) {
+            positions[i + 2] -= 2; // Move the star closer along z-axis
+
+            // Reset the star's position if it's behind the camera
+            if (positions[i + 2] < 0) {
+              positions[i + 2] = 1000; // Reset depth to farthest point
+              positions[i] = THREE.MathUtils.randFloatSpread(1000); // Randomize x position
+              positions[i + 1] = THREE.MathUtils.randFloatSpread(1000); // Randomize y position
+            }
+          }
+          // Update geometry after modifications
+          starField.geometry.attributes.position.needsUpdate = true;
+        });
+
+        // Render the scene from the perspective of the camera
+        renderer.render(scene, camera);
+      }
+
+      function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+
+      // Initialize the scene
+      init();
     </script>
   </body>
 </html>
