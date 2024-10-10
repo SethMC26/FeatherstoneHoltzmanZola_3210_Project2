@@ -15,6 +15,7 @@
   <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
+    
       let scene,
         camera,
         renderer,
@@ -123,34 +124,33 @@
       // Update starfield and asteroids
       function animate() {
         requestAnimationFrame(animate);
-
+        
+        camera.position.z -= 1;
+        //console.log(camera.position)
         // Move stars forward
         stars.forEach((starField) => {
-          let positions = starField.geometry.attributes.position.array;
-          for (let i = 0; i < positions.length; i += 3) {
-            positions[i + 2] -= 2; // Move the star closer along z-axis
-
-            // Reset the star's position if it's behind the camera
-            if (positions[i + 2] < 0) {
-              positions[i + 2] = 1000; // Reset depth to farthest point
-              positions[i] = THREE.MathUtils.randFloatSpread(1000); // Randomize x position
-              positions[i + 1] = THREE.MathUtils.randFloatSpread(1000); // Randomize y position
-            }
+          //let positions = starField.geometry.attributes.position.array;
+          if (starField.position.z > camera.position.z) {
+              starField.position.z = camera.position.z - 650; // Reset depth to farthest point
+              starField.position.x = THREE.MathUtils.randFloatSpread(100); // Randomize x position
+              starField.position.y = THREE.MathUtils.randFloatSpread(100);
           }
+         
+          
           starField.geometry.attributes.position.needsUpdate = true; // Mark as needing update
         });
 
         // Move asteroids forward
         asteroids.forEach((asteroid) => {
-          asteroid.position.z -= 2; // Move closer along z-axis
+          //asteroid.position.z += 2; // Move closer along z-axis
 
           // Rotate the asteroid for visual effect
           asteroid.rotation.x += 0.01;
           asteroid.rotation.y += 0.01;
 
           // Reset the asteroid if it's behind the camera
-          if (asteroid.position.z < 0) {
-            asteroid.position.z = 1000; // Reset to far distance
+          if (asteroid.position.z > camera.position.z) {
+            asteroid.position.z = camera.position.z - 1000; // Reset to far distance
             asteroid.position.x = THREE.MathUtils.randFloatSpread(1000); // Randomize x position
             asteroid.position.y = THREE.MathUtils.randFloatSpread(1000); // Randomize y position
           }
