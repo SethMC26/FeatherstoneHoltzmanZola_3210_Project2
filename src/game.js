@@ -4,6 +4,8 @@ import StarField from "./spaceObjects/StarFields";
 let starFields = [];
 let asteroids = [];
 let asteroidCount = 250;
+let mouseDiff = new THREE.Vector2(0,0)
+let cameraLookAt = new THREE.Vector3(0,0,0); // Speed of camera rotation
 
 // Create the scene
 let scene = new THREE.Scene();
@@ -16,6 +18,8 @@ window.innerWidth / window.innerHeight, // Aspect ratio
 1000 // Far plane
 );
 camera.position.z = 500; // Move the camera back to see the stars and asteroids
+
+camera.lookAt(cameraLookAt)
 
 // Create the renderer and add it to the document
 let renderer = new THREE.WebGLRenderer();
@@ -93,6 +97,34 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+document.addEventListener('mousemove', onMouseMove, false);
+
+let movementSpeed = 0.50
+let mouse = THREE.Vector2
+function onMouseMove(event) {
+    mouseDiff.x = event.movementX || 0
+    mouseDiff.y = event.movementY || 0
+
+    
+    // Update camera rotation based on mouse movement
+    camera.position.x += mouseDiff.x * movementSpeed; // Horizontal movement
+    camera.position.y -= mouseDiff.y * movementSpeed; // Vertical movement
+    /*
+    cameraLookAt.x += event.movementX * movementSpeed
+    //set limits to prevent world breakage 
+    cameraLookAt.x = (cameraLookAt.x < -200) ? -200 : cameraLookAt.x;
+    cameraLookAt.x = (cameraLookAt.x > 200) ? 200 : cameraLookAt.x;
+
+    cameraLookAt.y -= event.movementY * movementSpeed
+    cameraLookAt.y = (cameraLookAt.y < -50) ? -50 : cameraLookAt.y;
+    cameraLookAt.y = (cameraLookAt.y > 50) ? 50 : cameraLookAt.y;
+
+    camera.lookAt(cameraLookAt)
+    console.log("camer look at ", cameraLookAt)
+    */
+
 }
 
 // Start the animation loop
