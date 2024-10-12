@@ -1,7 +1,7 @@
 import Asteroid from "./spaceObjects/Asteroid";
 import StarField from "./spaceObjects/StarFields";
 
-import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls.js';
+import { FirstPersonControls } from './controls/FirstPersonControls';
 
 let starFields = [];
 let asteroids = [];
@@ -30,6 +30,9 @@ document.body.appendChild(renderer.domElement);
 const controls = new FirstPersonControls( camera, renderer.domElement );
 controls.autoForward = true
 controls.movementSpeed = 3;    
+controls.activeLook = true;
+controls.keyControlsOn = false;
+controls.mousePointersOn = false;
 
 // Create the stars (particles)
 createStars();
@@ -65,7 +68,6 @@ function animate() {
     //get deltaTime using clock object then make larger since its a small value 
     //deltaTime is the time between now and last time deltaTime was called 
     let deltaTime = clock.getDelta() * 100;
-    console.log(camera.position);
     controls.update(deltaTime);
 
     // Move stars forward

@@ -1,9 +1,13 @@
+//Below code has been ripped directly from threeJS library to make modifications
+//Source: https://github.com/mrdoob/three.js/blob/master/examples/jsm/controls/FirstPersonControls.js
+
 import {
 	Controls,
 	MathUtils,
 	Spherical,
 	Vector3
 } from 'three';
+
 
 const _lookDirection = new Vector3();
 const _spherical = new Spherical();
@@ -37,6 +41,9 @@ class FirstPersonControls extends Controls {
 
 		this.mouseDragOn = false;
 
+        //add ability to turn off keyboard controls
+        this.keyControlsOn = true;
+        this.mousePointersOn = true;
 		// internals
 
 		this._autoSpeedFactor = 0.0;
@@ -226,6 +233,10 @@ class FirstPersonControls extends Controls {
 
 function onPointerDown( event ) {
 
+    if (!this.mousePointersOn) {
+        return
+    }
+
 	if ( this.domElement !== document ) {
 
 		this.domElement.focus();
@@ -248,6 +259,9 @@ function onPointerDown( event ) {
 }
 
 function onPointerUp( event ) {
+    if (!this.mousePointersOn) {
+        return
+    }
 
 	if ( this.activeLook ) {
 
@@ -281,48 +295,56 @@ function onPointerMove( event ) {
 }
 
 function onKeyDown( event ) {
+    if (!this.keyControlsOn) {
+        return
+    }
 
-	switch ( event.code ) {
+        switch ( event.code ) {
 
-		case 'ArrowUp':
-		case 'KeyW': this._moveForward = true; break;
+            case 'ArrowUp':
+            case 'KeyW': this._moveForward = true; break;
 
-		case 'ArrowLeft':
-		case 'KeyA': this._moveLeft = true; break;
+            case 'ArrowLeft':
+            case 'KeyA': this._moveLeft = true; break;
 
-		case 'ArrowDown':
-		case 'KeyS': this._moveBackward = true; break;
+            case 'ArrowDown':
+            case 'KeyS': this._moveBackward = true; break;
 
-		case 'ArrowRight':
-		case 'KeyD': this._moveRight = true; break;
+            case 'ArrowRight':
+            case 'KeyD': this._moveRight = true; break;
 
-		case 'KeyR': this._moveUp = true; break;
-		case 'KeyF': this._moveDown = true; break;
+            case 'KeyR': this._moveUp = true; break;
+            case 'KeyF': this._moveDown = true; break;
 
-	}
+        }
+    
 
 }
 
 function onKeyUp( event ) {
+    if (!this.keyControlsOn) {
+        return
+    }
 
-	switch ( event.code ) {
+        switch ( event.code ) {
 
-		case 'ArrowUp':
-		case 'KeyW': this._moveForward = false; break;
+            case 'ArrowUp':
+            case 'KeyW': this._moveForward = false; break;
 
-		case 'ArrowLeft':
-		case 'KeyA': this._moveLeft = false; break;
+            case 'ArrowLeft':
+            case 'KeyA': this._moveLeft = false; break;
 
-		case 'ArrowDown':
-		case 'KeyS': this._moveBackward = false; break;
+            case 'ArrowDown':
+            case 'KeyS': this._moveBackward = false; break;
 
-		case 'ArrowRight':
-		case 'KeyD': this._moveRight = false; break;
+            case 'ArrowRight':
+            case 'KeyD': this._moveRight = false; break;
 
-		case 'KeyR': this._moveUp = false; break;
-		case 'KeyF': this._moveDown = false; break;
+            case 'KeyR': this._moveUp = false; break;
+            case 'KeyF': this._moveDown = false; break;
 
-	}
+        }
+    
 
 }
 
