@@ -1,17 +1,19 @@
 import Asteroid from "./spaceObjects/Asteroid";
 import StarField from "./spaceObjects/StarFields";
 
+import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls.js';
+
 let starFields = [];
 let asteroids = [];
 let asteroidCount = 250;
-let mouseDiff = new THREE.Vector2(0,0)
-let cameraLookAt = new THREE.Vector3(0,0,0); // Speed of camera rotation
+
+const clock = new THREE.Clock(); 
 
 // Create the scene
-let scene = new THREE.Scene();
+const scene = new THREE.Scene();
 
 // Create 2 cameras for front and rear-view 
-let camera = new THREE.PerspectiveCamera(
+const camera = new THREE.PerspectiveCamera(
 75, // Field of view
 window.innerWidth / window.innerHeight, // Aspect ratio
 0.1, // Near plane
@@ -19,12 +21,15 @@ window.innerWidth / window.innerHeight, // Aspect ratio
 );
 camera.position.z = 500; // Move the camera back to see the stars and asteroids
 
-camera.lookAt(cameraLookAt)
-
 // Create the renderer and add it to the document
-let renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+
+
+const controls = new FirstPersonControls( camera, renderer.domElement );
+controls.autoForward = true
+controls.movementSpeed = 3;    
 
 // Create the stars (particles)
 createStars();
@@ -55,11 +60,14 @@ function createAsteroids() {
     }
 }
 
-
 // Update starfield and asteroids
 function animate() {
-    camera.position.z -= 4;
-    //console.log(camera.position)
+    //get deltaTime using clock object then make larger since its a small value 
+    //deltaTime is the time between now and last time deltaTime was called 
+    let deltaTime = clock.getDelta() * 100;
+    console.log(camera.position);
+    controls.update(deltaTime);
+
     // Move stars forward
     starFields.forEach((starField) => {
         //let positions = starField.geometry.attributes.position.array;
@@ -74,8 +82,8 @@ function animate() {
     asteroids.forEach((asteroid) => {
 
         // Rotate the asteroid for visual effect
-        asteroid.mesh.rotation.x += 0.03;
-        asteroid.mesh.rotation.y += 0.03;
+        asteroid.mesh.rotation.x += 0.03 * deltaTime;
+        asteroid.mesh.rotation.y += 0.03 * deltaTime;
 
         // Reset the asteroid if it's behind the camera
         if (asteroid.mesh.position.z > camera.position.z) {
@@ -89,6 +97,9 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
+ // Start the animation loop
+ animate();
+
 // Handle window resize
 window.addEventListener("resize", onWindowResize, false);
 
@@ -97,35 +108,5 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    controls.handleResize();
 }
-
-document.addEventListener('mousemove', onMouseMove, false);
-
-let movementSpeed = 0.50
-let mouse = THREE.Vector2
-function onMouseMove(event) {
-    mouseDiff.x = event.movementX || 0
-    mouseDiff.y = event.movementY || 0
-
-    
-    // Update camera rotation based on mouse movement
-    camera.position.x += mouseDiff.x * movementSpeed; // Horizontal movement
-    camera.position.y -= mouseDiff.y * movementSpeed; // Vertical movement
-    /*
-    cameraLookAt.x += event.movementX * movementSpeed
-    //set limits to prevent world breakage 
-    cameraLookAt.x = (cameraLookAt.x < -200) ? -200 : cameraLookAt.x;
-    cameraLookAt.x = (cameraLookAt.x > 200) ? 200 : cameraLookAt.x;
-
-    cameraLookAt.y -= event.movementY * movementSpeed
-    cameraLookAt.y = (cameraLookAt.y < -50) ? -50 : cameraLookAt.y;
-    cameraLookAt.y = (cameraLookAt.y > 50) ? 50 : cameraLookAt.y;
-
-    camera.lookAt(cameraLookAt)
-    console.log("camer look at ", cameraLookAt)
-    */
-
-}
-
-// Start the animation loop
-animate();
