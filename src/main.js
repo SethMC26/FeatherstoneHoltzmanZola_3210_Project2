@@ -29,8 +29,8 @@ document.body.appendChild(renderer.domElement);
 
 const controls = new FirstPersonControls( camera, renderer.domElement );
 controls.autoForward = true
-controls.movementSpeed = 3;    
-controls.activeLook = true;
+controls.movementSpeed = 3;
+controls.constrainVertical = true;
 controls.keyControlsOn = false;
 controls.mousePointersOn = false;
 
