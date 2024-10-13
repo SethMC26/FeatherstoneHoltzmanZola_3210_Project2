@@ -3,6 +3,19 @@
 
 @authors Gaby Zola, Seth Holtzman, Justin Featherstone
 
+# Quick Start 
+
+1. Install the required libraries
+```bash
+npm i three
+npm i vite
+npm i vite-plugin-glsl
+```
+
+2. Run and enjoy! 
+```
+npx vite 
+```
 File Structure Initial Concept:
 ```css
 project-root/

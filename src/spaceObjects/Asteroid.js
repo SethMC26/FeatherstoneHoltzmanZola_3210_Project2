@@ -1,6 +1,7 @@
 /**
  * Asteroid class represents an asteroid in our game
  */
+import { fragmentShaderText, vertexShaderText } from "../shaders/shaderStrings";
 export default class Asteroid {
     /**
      * Creates Asteroid object
@@ -8,11 +9,20 @@ export default class Asteroid {
      */
     constructor() {
         this.geometry = new THREE.IcosahedronGeometry(10, 1); // Create a base asteroid geometry (Icosahedron)
+        /*
         this.material = new THREE.MeshStandardMaterial({
             color: 0xa52a2a, // Brown asteroid
             flatShading: true, // Gives it a rugged look
         });
 
+        */
+        this.material = new THREE.ShaderMaterial (
+            {
+                vertexShader: vertexShaderText,
+                fragmentShader: fragmentShaderText
+            }
+        )
+        
         this.mesh = new THREE.Mesh(this.geometry, this.material);
    
        // Randomize the position, size, and rotation of each asteroid
