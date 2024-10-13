@@ -29,10 +29,12 @@ document.body.appendChild(renderer.domElement);
 
 const controls = new FirstPersonControls( camera, renderer.domElement );
 controls.autoForward = true
-controls.movementSpeed = 3;
+controls.movementSpeed = 30;
 controls.constrainVertical = true;
 controls.keyControlsOn = false;
 controls.mousePointersOn = false;
+//uncomment below line to disable mouse controls(simply move forward)
+//controls.activeLook = false;
 
 // Create the stars (particles)
 createStars();
@@ -65,11 +67,15 @@ function createAsteroids() {
 
 // Update starfield and asteroids
 function animate() {
+
     //get deltaTime using clock object then make larger since its a small value 
     //deltaTime is the time between now and last time deltaTime was called 
-    let deltaTime = clock.getDelta() * 100;
-    controls.update(deltaTime);
+    let deltaTime = clock.getDelta() * 10;
+    
+    //use time as a constantly increasing number(for sin function)
+    let time = Date.now() * 0.001 
 
+    controls.update(deltaTime * 1.5);
     // Move stars forward
     starFields.forEach((starField) => {
         //let positions = starField.geometry.attributes.position.array;
@@ -83,12 +89,15 @@ function animate() {
     //check asteroids and rotate them
     asteroids.forEach((asteroid) => {
 
+        //scale astroid up by oscillating value(sin) with time and asteroid scaling factor
+        asteroid.uniforms.scaleFactor.value = Math.sin(time * asteroid.scaleSpeed) * 1.5 + 2.5
+
         // Rotate the asteroid for visual effect
-        asteroid.mesh.rotation.x += 0.03 * deltaTime;
+        asteroid.mesh.rotation.x += 0.3 * deltaTime;
         asteroid.mesh.rotation.y += 0.03 * deltaTime;
 
         // Reset the asteroid if it's behind the camera
-        if (asteroid.mesh.position.z > camera.position.z) {
+        if (asteroid.mesh.position.z > camera.position.z + 100) {
             asteroid.resetObject(camera.position)
         }
     });

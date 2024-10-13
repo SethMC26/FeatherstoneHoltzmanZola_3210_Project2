@@ -14,20 +14,32 @@ export default class Asteroid {
             color: 0xa52a2a, // Brown asteroid
             flatShading: true, // Gives it a rugged look
         });
-
         */
+
+        this.uniforms = {
+            scaleFactor: { value: 1.0},
+            colorMix: {value: 0.0}
+        }
+
+        //speed each asteroid scales up and down 
+        //not sure if i like each asteroid scaling up and down by itself or all asteroids scaling together better
+        this.scaleSpeed = THREE.MathUtils.randFloat(0,5)
+        //this.scaleSpeed = 0
+
+
         this.material = new THREE.ShaderMaterial (
             {
                 vertexShader: vertexShaderText,
-                fragmentShader: fragmentShaderText
+                fragmentShader: fragmentShaderText,
+                uniforms: this.uniforms
             }
         )
         
         this.mesh = new THREE.Mesh(this.geometry, this.material);
    
        // Randomize the position, size, and rotation of each asteroid
-       this.mesh.position.x = THREE.MathUtils.randFloatSpread(3000); // Random x position
-       this.mesh.position.y = THREE.MathUtils.randFloatSpread(3000); // Random y position
+       this.mesh.position.x = THREE.MathUtils.randFloatSpread(2000); // Random x position
+       this.mesh.position.y = THREE.MathUtils.randFloatSpread(2000); // Random y position
        this.mesh.position.z = THREE.MathUtils.randFloat(-1000, 350); // Random z (depth)
    
        // Randomize the size of the asteroid
@@ -46,8 +58,8 @@ export default class Asteroid {
      * @note API name could be improved possibly 
      */
     resetObject(cameraPos) {
-        this.mesh.position.z = cameraPos.z - 1300; // Reset to far distance
-        this.mesh.position.x = THREE.MathUtils.randFloatSpread(1000); // Randomize x position
-        this.mesh.position.y = THREE.MathUtils.randFloatSpread(1000); // Randomize y position
+        this.mesh.position.z = cameraPos.z - 1500; // Reset to far distance
+        this.mesh.position.x = THREE.MathUtils.randFloatSpread(2000); // Randomize x position
+        this.mesh.position.y = THREE.MathUtils.randFloatSpread(2000); // Randomize y position
     }
 }   
