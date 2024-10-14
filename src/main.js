@@ -91,16 +91,16 @@ function animate() {
 
         //scale astroid up by oscillating value(sin) with time and asteroid scaling factor
         asteroid.uniforms.scaleFactor.value = Math.sin(time * asteroid.scaleSpeed) * 1.5 + 2.5
-
-        // Rotate the asteroid for visual effect
-        asteroid.mesh.rotation.x += 0.3 * deltaTime;
-        asteroid.mesh.rotation.y += 0.03 * deltaTime;
+        asteroid.uniforms.time.value += deltaTime
 
         // Reset the asteroid if it's behind the camera
         if (asteroid.mesh.position.z > camera.position.z + 100) {
             asteroid.resetObject(camera.position)
         }
     });
+
+    let test = asteroids[0];
+    console.log(test.uniforms.time.value);
 
     // Render the scene from the perspective of the camera
     renderer.render(scene, camera);

@@ -15,15 +15,19 @@ export default class Asteroid {
             flatShading: true, // Gives it a rugged look
         });
         */
-
+        let _tVec = new THREE.Vector3(0.0,0.0,0)
+        //vectors with rotations of theta 
+        let _rVec = new THREE.Vector3(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI)
         this.uniforms = {
             scaleFactor: { value: 1.0},
-            colorMix: {value: 0.0}
+            time : { value: 0.0},
+            tVec: { value: _tVec},
+            rVec: { value: _rVec}
         }
 
         //speed each asteroid scales up and down 
         //not sure if i like each asteroid scaling up and down by itself or all asteroids scaling together better
-        this.scaleSpeed = THREE.MathUtils.randFloat(0,5)
+        this.scaleSpeed = THREE.MathUtils.randFloat(0.001,2)
         //this.scaleSpeed = 0
 
 
@@ -47,8 +51,8 @@ export default class Asteroid {
        this.mesh.scale.set(scale, scale, scale);
    
        // Randomize the rotation
-       this.mesh.rotation.x = Math.random() * Math.PI;
-       this.mesh.rotation.y = Math.random() * Math.PI;
+       //this.mesh.rotation.x = ;
+       //this.mesh.rotation.y = Math.random() * Math.PI;
     }
 
     /**

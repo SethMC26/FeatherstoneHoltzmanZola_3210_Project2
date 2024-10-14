@@ -3,12 +3,13 @@
 // Input from the vertex shader
 // Input from the vertex shader
 in float rand;
-in vec4 transformPos; // For accessing the z-coordinate
+in vec4 finalPos; // For accessing the z-coordinate
 
 // Uniform for scale factor
 uniform float scaleFactor;
-
+uniform float time;
 vec3 color;
+float uScale;
 
 void main() 
 {   
@@ -18,21 +19,22 @@ void main()
     float scaleFacNorm = (scaleFactor - 0.8 ) / (3.8 - 0.8);
 
     //Colors for brown orange and red 
-    vec3 brownColor = vec3(0.33, 0.18, 0.02); // Brown
-    vec3 orangeColor = vec3(0.81, 0.49, 0.07);  // Orange
-    vec3 redColor = vec3(0.9, 0.24, 0.15); // Red
+    vec3 color1 = vec3(0.52, 0.26, 0.02); // brown
+    vec3 color2 = vec3(0.46, 0.18, 0.03);  // orangev
 
-    //Scale between brown and orange (0 to 0.5) then orange to red (0.5 to 1)
-    if (scaleFacNorm < 0.5) {
-        color = mix(brownColor, orangeColor, scaleFacNorm * 2.0); // Convert scaleFac norm from 0 to 0.5 to 0. 1
-    } else {
-        color = mix(orangeColor, redColor, (scaleFacNorm - 0.5) * 2.0); // Convert scaleFac norm from 0 to 0.5 to 0. 1
-    }
+    //Scale colors as shape increases and descreases in size
+    color = mix(color1, color2, scaleFacNorm);
+    color += vec3(rand*0.15); // Add random value to each rgb 
+    
+    //scale psychedelic effect with time on a wave 
+    float ugScale = abs(sin(time * 0.0001));
 
-    float randomness = rand * 0.35; // create random value with scale 
-    //not sure which one i like better 
-    color -= vec3(randomness); // Add random value to each rgb 
-    //color += vec3(randomness); // Add random value to each rgb 
+    //really fun variable to change !!!
+    float waveSize = 0.075 * rand;
+
+    color.x += sin(finalPos.z * waveSize) * ugScale;
+    color.y += cos(finalPos.z * waveSize) * ugScale;
+    color.z += sin(finalPos.z * waveSize) * ugScale;
 
     gl_FragColor = vec4(color, 1.0); 
 }
