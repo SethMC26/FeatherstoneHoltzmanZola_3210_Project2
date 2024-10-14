@@ -9,7 +9,6 @@ in vec4 finalPos; // For accessing the z-coordinate
 uniform float scaleFactor;
 uniform float time;
 vec3 color;
-float uScale;
 
 void main() 
 {   
@@ -20,20 +19,20 @@ void main()
 
     //Colors for brown orange and red 
     vec3 color1 = vec3(0.52, 0.26, 0.02); // brown
-    vec3 color2 = vec3(0.46, 0.18, 0.03);  // orangev
+    vec3 color2 = vec3(0.59, 0.19, 0.04);  // orangev
 
     //Scale colors as shape increases and descreases in size
     color = mix(color1, color2, scaleFacNorm);
-    color += vec3(rand*0.15); // Add random value to each rgb 
+    color += vec3(rand*0.2718281828459045); // Add random value to each rgb(eulers number just for fun)
     
     //scale psychedelic effect with time on a wave 
-    float ugScale = abs(sin(time * 0.0001));
+    float ugScale = abs(sin(time * 0.00009));
 
     //really fun variable to change !!!
     float waveSize = 0.075 * rand;
 
-    color.x += sin(finalPos.z * waveSize) * ugScale;
-    color.y += cos(finalPos.z * waveSize) * ugScale;
+    color.x += sin(finalPos.x * waveSize) * ugScale;
+    color.y += cos(finalPos.y * waveSize) * ugScale;
     color.z += sin(finalPos.z * waveSize) * ugScale;
 
     gl_FragColor = vec4(color, 1.0); 

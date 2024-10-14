@@ -34,7 +34,7 @@ void main()
     //rotation matrixes
     float theta;
     //theta for x
-    theta = rVec.x * time * 0.2;
+    theta = rVec.x * time * 0.15;
     mat4 rotateXMat = mat4(
         1.0, 0.0,               0.0,               0.0,
         0.0, cos(theta), -sin(theta), 0.0,
@@ -44,7 +44,7 @@ void main()
     );
 
     //theta for y
-    theta = rVec.y * time * 0.2;
+    theta = rVec.y * time * 0.15;
     mat4 rotateYMat = mat4(
         cos(theta), 0.0, -sin(theta),  0.0,
         0.0, 1.0, 0.0, 0.0,
@@ -53,7 +53,7 @@ void main()
     );
 
     //theta for z 
-    theta = rVec.z * time * 0.2;
+    theta = rVec.z * time * 0.15;
     mat4 rotateZMat = mat4(
         cos(theta), -sin(theta), 0.0, 0,
         sin(theta), cos(theta), 0, 0,
@@ -70,7 +70,7 @@ void main()
          0.0, 0.0, 0.0, 1.0
     );
 
-    vec4 transformVec = rotateZMat * rotateYMat * rotateXMat * scalingMat *  vec4(position, 1.0);
+    vec4 transformVec =  rotateYMat * rotateXMat * scalingMat *  vec4(position, 1.0);
     //scale our position by our scaling factor
     finalPos = projectionMatrix * viewMatrix * modelMatrix * transformVec;
 

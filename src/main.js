@@ -74,8 +74,9 @@ function animate() {
     
     //use time as a constantly increasing number(for sin function)
     let time = Date.now() * 0.001 
-
+    //update camera controls
     controls.update(deltaTime * 1.5);
+
     // Move stars forward
     starFields.forEach((starField) => {
         //let positions = starField.geometry.attributes.position.array;
@@ -98,9 +99,6 @@ function animate() {
             asteroid.resetObject(camera.position)
         }
     });
-
-    let test = asteroids[0];
-    console.log(test.uniforms.time.value);
 
     // Render the scene from the perspective of the camera
     renderer.render(scene, camera);

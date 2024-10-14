@@ -1,7 +1,7 @@
+import { fragmentShaderText, vertexShaderText } from "../shaders/shaderStrings";
 /**
  * Asteroid class represents an asteroid in our game
  */
-import { fragmentShaderText, vertexShaderText } from "../shaders/shaderStrings";
 export default class Asteroid {
     /**
      * Creates Asteroid object
