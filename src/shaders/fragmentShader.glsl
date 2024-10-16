@@ -8,7 +8,9 @@ in vec4 finalPos; // For accessing the z-coordinate
 // Uniform for scale factor
 uniform float scaleFactor;
 uniform float time;
+
 vec3 color;
+float ugScale;
 
 void main() 
 {   
@@ -26,7 +28,8 @@ void main()
     color += vec3(rand*0.2718281828459045); // Add random value to each rgb(eulers number just for fun)
     
     //scale psychedelic effect with time on a wave 
-    float ugScale = abs(sin(time * 0.00009));
+    //float ugScale = sin(time * 0.0015);
+    ugScale += sin(time * 0.0015) * rand;
 
     //really fun variable to change !!!
     float waveSize = 0.075 * rand;

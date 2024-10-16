@@ -62,7 +62,7 @@ export default class Asteroid {
      * @note API name could be improved possibly 
      */
     resetObject(cameraPos) {
-        this.mesh.position.z = cameraPos.z - 1500; // Reset to far distance
+        this.mesh.position.z = cameraPos.z + THREE.MathUtils.randFloat(-3000, -500); // Reset to far distance
         this.mesh.position.x = THREE.MathUtils.randFloatSpread(2000); // Randomize x position
         this.mesh.position.y = THREE.MathUtils.randFloatSpread(2000); // Randomize y position
     }
