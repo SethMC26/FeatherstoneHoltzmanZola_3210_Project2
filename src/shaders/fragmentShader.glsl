@@ -29,7 +29,7 @@ void main()
     
     //scale psychedelic effect with time on a wave 
     //float ugScale = sin(time * 0.0015);
-    ugScale += sin(time * 0.0015) * rand;
+    ugScale += sin(time * 0.00015);
 
     //really fun variable to change !!!
     float waveSize = 0.075 * rand;
