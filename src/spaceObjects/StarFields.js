@@ -6,14 +6,14 @@ export default class StarField {
      * Creates StarField object
      * @author Gaby Zola wrote the code contained in constructor
      */
-    constructor(starCount=1000) {
+    constructor(starCount=2000) {
         this.geometry = new THREE.BufferGeometry();
         this.positions = new Float32Array(starCount * 3); // X, Y, Z for each star
 
         for (let i = 0; i < starCount; i++) {
             // Randomly position the stars within a large cube
-            this.positions[i * 3] = THREE.MathUtils.randFloatSpread(1000); // x
-            this.positions[i * 3 + 1] = THREE.MathUtils.randFloatSpread(1000); // y
+            this.positions[i * 3] = THREE.MathUtils.randFloatSpread(2000); // x
+            this.positions[i * 3 + 1] = THREE.MathUtils.randFloatSpread(2000); // y
             this.positions[i * 3 + 2] = THREE.MathUtils.randFloat(-1000, 350); // z (depth)
         }
 

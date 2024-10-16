@@ -1,15 +1,19 @@
 import Asteroid from "./spaceObjects/Asteroid";
 import StarField from "./spaceObjects/StarFields";
 
+import { FirstPersonControls } from './controls/FirstPersonControls';
+
 let starFields = [];
 let asteroids = [];
 let asteroidCount = 250;
 
+const clock = new THREE.Clock(); 
+
 // Create the scene
-let scene = new THREE.Scene();
+const scene = new THREE.Scene();
 
 // Create 2 cameras for front and rear-view 
-let camera = new THREE.PerspectiveCamera(
+const camera = new THREE.PerspectiveCamera(
 75, // Field of view
 window.innerWidth / window.innerHeight, // Aspect ratio
 0.1, // Near plane
@@ -18,9 +22,19 @@ window.innerWidth / window.innerHeight, // Aspect ratio
 camera.position.z = 500; // Move the camera back to see the stars and asteroids
 
 // Create the renderer and add it to the document
-let renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+
+
+const controls = new FirstPersonControls( camera, renderer.domElement );
+controls.autoForward = true
+controls.movementSpeed = 30;
+controls.constrainVertical = true;
+controls.keyControlsOn = false;
+controls.mousePointersOn = false;
+//uncomment below line to disable mouse controls(simply move forward)
+//controls.activeLook = false;
 
 // Create the stars (particles)
 createStars();
@@ -51,11 +65,18 @@ function createAsteroids() {
     }
 }
 
-
 // Update starfield and asteroids
 function animate() {
-    camera.position.z -= 4;
-    //console.log(camera.position)
+
+    //get deltaTime using clock object then make larger since its a small value 
+    //deltaTime is the time between now and last time deltaTime was called 
+    let deltaTime = clock.getDelta() * 10;
+    
+    //use time as a constantly increasing number(for sin function)
+    let time = Date.now() * 0.001 
+    //update camera controls
+    controls.update(deltaTime * 1.5);
+
     // Move stars forward
     starFields.forEach((starField) => {
         //let positions = starField.geometry.attributes.position.array;
@@ -69,12 +90,12 @@ function animate() {
     //check asteroids and rotate them
     asteroids.forEach((asteroid) => {
 
-        // Rotate the asteroid for visual effect
-        asteroid.mesh.rotation.x += 0.03;
-        asteroid.mesh.rotation.y += 0.03;
+        //scale astroid up by oscillating value(sin) with time and asteroid scaling factor
+        asteroid.uniforms.scaleFactor.value = Math.sin(time * asteroid.scaleSpeed) * 1.5 + 2.5
+        asteroid.uniforms.time.value += deltaTime
 
         // Reset the asteroid if it's behind the camera
-        if (asteroid.mesh.position.z > camera.position.z) {
+        if (asteroid.mesh.position.z > camera.position.z + 100) {
             asteroid.resetObject(camera.position)
         }
     });
@@ -85,6 +106,9 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
+ // Start the animation loop
+ animate();
+
 // Handle window resize
 window.addEventListener("resize", onWindowResize, false);
 
@@ -93,7 +117,5 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    controls.handleResize();
 }
-
-// Start the animation loop
-animate();
