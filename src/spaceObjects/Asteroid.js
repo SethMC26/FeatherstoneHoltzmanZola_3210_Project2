@@ -9,27 +9,22 @@ export default class Asteroid {
      */
     constructor() {
         this.geometry = new THREE.IcosahedronGeometry(10, 1); // Create a base asteroid geometry (Icosahedron)
-        /*
-        this.material = new THREE.MeshStandardMaterial({
-            color: 0xa52a2a, // Brown asteroid
-            flatShading: true, // Gives it a rugged look
-        });
-        */
-        let _tVec = new THREE.Vector3(0.0,0.0,0)
+
+       //transformation vectors for linear transforms 
+        this.tVec = new THREE.Vector3(THREE.MathUtils.randFloatSpread(10), THREE.MathUtils.randFloatSpread(10), THREE.MathUtils.randFloatSpread(10))
+
         //vectors with rotations of theta 
         let _rVec = new THREE.Vector3(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI)
+
         this.uniforms = {
             scaleFactor: { value: 1.0},
             time : { value: 0.0},
-            tVec: { value: _tVec},
             rVec: { value: _rVec}
         }
 
         //speed each asteroid scales up and down 
         //not sure if i like each asteroid scaling up and down by itself or all asteroids scaling together better
         this.scaleSpeed = THREE.MathUtils.randFloat(0.001,2)
-        //this.scaleSpeed = 0
-
 
         this.material = new THREE.ShaderMaterial (
             {
@@ -50,9 +45,6 @@ export default class Asteroid {
        let scale = THREE.MathUtils.randFloat(0.5, 3);
        this.mesh.scale.set(scale, scale, scale);
    
-       // Randomize the rotation
-       //this.mesh.rotation.x = ;
-       //this.mesh.rotation.y = Math.random() * Math.PI;
     }
 
     /**
@@ -65,5 +57,15 @@ export default class Asteroid {
         this.mesh.position.z = cameraPos.z + THREE.MathUtils.randFloat(-3000, -500); // Reset to far distance
         this.mesh.position.x = THREE.MathUtils.randFloatSpread(2000); // Randomize x position
         this.mesh.position.y = THREE.MathUtils.randFloatSpread(2000); // Randomize y position
+    }
+
+    /**
+     * Update the drift of this asteroid based on some scale factor(delta time)
+     * @param {Number} scale Scale to update drift by (delta time is a good idea here)
+     */
+    updateDrift(scale){
+        this.mesh.translateX(this.tVec.x * scale);
+        this.mesh.translateY(this.tVec.y * scale);
+        this.mesh.translateZ(this.tVec.z * scale);
     }
 }   

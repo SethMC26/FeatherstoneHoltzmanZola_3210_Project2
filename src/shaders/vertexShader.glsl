@@ -3,7 +3,6 @@ out vec4 finalPos;
 
 uniform float scaleFactor;
 uniform float time;
-uniform vec3 tVec;
 uniform vec3 rVec;
 
 // Used to get random numbers
@@ -61,14 +60,7 @@ void main()
         0, 0, 0, 1
     );
     
-    //float t = 2.0;
-    //translation mat not working - it displeases the shader gods 
-    mat4 translateMat = mat4(
-         1.0, 0.0, 0.0, 0.0,
-         0.0, 1.0, 0.0, 0.0,
-         0.0, 0.0, 1.0, 0.0,
-         0.0, 0.0, 0.0, 1.0
-    );
+    
 
     vec4 transformVec =  rotateYMat * rotateXMat * scalingMat *  vec4(position, 1.0);
     //scale our position by our scaling factor

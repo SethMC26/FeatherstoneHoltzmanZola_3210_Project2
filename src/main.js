@@ -74,8 +74,9 @@ function animate() {
     
     //use time as a constantly increasing number(for sin function)
     let time = Date.now() * 0.001 
+    
     //update camera controls
-    controls.update(deltaTime * 1.5);
+    controls.update(deltaTime * 1.2);
 
     // Move stars forward
     starFields.forEach((starField) => {
@@ -94,10 +95,15 @@ function animate() {
         asteroid.uniforms.scaleFactor.value = Math.sin(time * asteroid.scaleSpeed) * 1.5 + 2.5
         asteroid.uniforms.time.value += deltaTime
 
+        //update drift 
+        asteroid.updateDrift(deltaTime * 2);
+
         // Reset the asteroid if it's behind the camera
         if (asteroid.mesh.position.z > camera.position.z + 100) {
             asteroid.resetObject(camera.position)
         }
+
+        
     });
 
     // Render the scene from the perspective of the camera
