@@ -1,7 +1,6 @@
 out float rand;
 out vec4 finalPos; 
 
-uniform float scaleFactor;
 uniform float time;
 uniform vec3 rVec;
 
@@ -21,14 +20,6 @@ void main()
 {  
     // Grab a random number based on the position of the vertex
     rand = random( vec2( position.x, position.y ) );
-
-    //scaling matrix 
-    mat4 scalingMat = mat4(
-        scaleFactor , 0.0, 0.0, 0.0,
-        0.0, scaleFactor, 0.0, 0.0,
-        0.0, 0.0, scaleFactor, 0.0,
-        0.0, 0.0,      0.0 , 1
-    );
     
     //rotation matrixes
     float theta;
@@ -62,10 +53,9 @@ void main()
     
     
 
-    vec4 transformVec =  rotateYMat * rotateXMat * scalingMat *  vec4(position, 1.0);
+    vec4 transformVec =  rotateYMat * rotateXMat  *  vec4(position, 1.0);
     //scale our position by our scaling factor
     finalPos = projectionMatrix * viewMatrix * modelMatrix * transformVec;
 
-    //gl_Position = projectionMatrix * viewMatrix * modelMatrix * transformPos;
     gl_Position =  finalPos;
 }
