@@ -69,7 +69,8 @@ function createAsteroids() {
 
         // Add the asteroid to the scene
         scene.add(newAsteroid.mesh);
-        scene.add(newAsteroid.boundingBoxHelper)
+        //uncomment to see boundingBoxes
+        //scene.add(newAsteroid.boundingBoxHelper)
         asteroids.push(newAsteroid);
     }
 }
