@@ -47,7 +47,13 @@ export default class Asteroid {
         this.mesh.position.x = THREE.MathUtils.randFloatSpread(2000); // Random x position
         this.mesh.position.y = THREE.MathUtils.randFloatSpread(2000); // Random y position
         this.mesh.position.z = THREE.MathUtils.randFloat(-1000, 350); // Random z (depth)
-   
+        
+        //compute bounding box 
+        this.boundingBox = new THREE.Box3().setFromObject(this.mesh);
+
+        //boxhelper to draw bounding box
+        this.randColor = new THREE.Color(Math.random(), Math.random(), Math.random())
+        this.boundingBoxHelper = new THREE.BoxHelper(this.mesh, this.randColor)
     }
 
     /**
@@ -73,9 +79,14 @@ export default class Asteroid {
         //set scale 
         this.mesh.scale.setScalar(this.scaleFactor);
 
+        //scale = 0;
         //set position
         this.mesh.translateX(this.tVec.x * scale);
         this.mesh.translateY(this.tVec.y * scale);
         this.mesh.translateZ(this.tVec.z * scale);
+
+        //update boundary box 
+        this.boundingBox = new THREE.Box3().setFromObject(this.mesh);
+        this.boundingBoxHelper.update();
     }
 }   

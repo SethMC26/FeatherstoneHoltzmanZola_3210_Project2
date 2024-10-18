@@ -61,6 +61,7 @@ function createAsteroids() {
 
         // Add the asteroid to the scene
         scene.add(newAsteroid.mesh);
+        scene.add(newAsteroid.boundingBoxHelper)
         asteroids.push(newAsteroid);
     }
 }
@@ -102,8 +103,6 @@ function animate() {
         if (asteroid.mesh.position.z > camera.position.z + 100) {
             asteroid.resetObject(camera.position)
         }
-
-        
     });
 
     // Render the scene from the perspective of the camera
