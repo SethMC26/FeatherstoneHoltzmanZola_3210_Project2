@@ -1,14 +1,33 @@
 import { fragmentShaderText, vertexShaderText } from "../shaders/shaderStrings";
 /**
- * Asteroid class represents an asteroid in our game
+ * Creates Asteroid object
+ * @author Gaby Zola wrote the code contained in constructor
  */
 export default class Asteroid {
-    /**
-     * Creates Asteroid object
-     * @author Gaby Zola wrote the code contained in constructor
-     */
+
     constructor() {
-       //transformation vectors for linear transforms 
+        //enums of our movement types
+        this.movement = {
+            LINEAR: 0,
+            PARABOLIC: 1,
+            CORKSCREW: 2
+        }
+
+        //start linear 
+        this.movementType = this.movement.LINEAR;
+
+        //half will move with some parabolic movement 
+        if (THREE.MathUtils.randInt(0, 1)) {
+            this.movementType = this.movement.PARABOLIC;
+            //set rotation axis 
+            this.rotationAxis = new THREE.Vector3(THREE.MathUtils.randFloat(0,1), THREE.MathUtils.randFloat(0,1),THREE.MathUtils.randFloat(0,1))
+            //half of that half (1/4) have corkscrew movement 
+            if (THREE.MathUtils.randInt(0, 1)) {
+                this.movementType = this.movement.CORKSCREW
+            }
+        }
+
+        //transformation vectors for linear transforms 
         this.tVec = new THREE.Vector3(THREE.MathUtils.randFloatSpread(10), THREE.MathUtils.randFloatSpread(10), THREE.MathUtils.randFloatSpread(10))
 
         //vectors with rotations of theta 
@@ -29,8 +48,9 @@ export default class Asteroid {
         this.scaleSpeed = THREE.MathUtils.randFloat(.0001,2)
         //this.scaleSpeed = 1.5;
         
-        //set random size
+        //set random size of asteroid 
         let size = THREE.MathUtils.randFloat(15, 20);
+
         this.geometry = new THREE.IcosahedronGeometry(size, 1); // Create a base asteroid geometry (Icosahedron)
 
         this.material = new THREE.ShaderMaterial (
@@ -81,11 +101,26 @@ export default class Asteroid {
         //set scale 
         this.mesh.scale.setScalar(this.scaleFactor);
 
-        //scale = 0;
-        //set position
-        this.mesh.translateX(this.tVec.x * scale);
-        this.mesh.translateY(this.tVec.y * scale);
-        this.mesh.translateZ(this.tVec.z * scale);
+        this.movementType = this.movement.CORKSCREW;
+
+        //move based on movement type
+        switch(this.movementType) {
+            case this.movement.LINEAR:
+                this.mesh.translateX(this.tVec.x * scale);
+                this.mesh.translateY(this.tVec.y * scale);
+                this.mesh.translateZ(this.tVec.z * scale);
+                break;
+            case this.movement.PARABOLIC:
+                this.rotateAboutWorldAxis(this.mesh, this.rotationAxis, 0.001 * scale);
+                break;
+            case this.movement.CORKSCREW:
+                let normTVec = this.tVec.clone().normalize();
+                this.mesh.translateX(this.tVec.x * scale);
+                this.mesh.translateY(this.tVec.y * scale);
+                this.mesh.translateZ(this.tVec.z * scale);
+                this.rotateAboutWorldAxis(this.mesh, normTVec, 0.001 * scale);
+                break;
+        }
 
         //update boundary box 
         this.boundingBox = new THREE.Box3().setFromObject(this.mesh);
@@ -112,5 +147,18 @@ export default class Asteroid {
      */
     intersectsPosition(position) {
         return this.boundingBox.containsPoint(position);
+    }
+
+    //from class example 
+    //@NOTE ADD CREDIT BEFORE SUBMISSION!!!!
+
+    rotateAboutWorldAxis(object, axis, angle) {
+        var rotationMatrix = new THREE.Matrix4();
+        rotationMatrix.makeRotationAxis( axis.normalize(), angle );
+        var currentPos = new THREE.Vector4(object.position.x, object.position.y, object.position.z, 1);
+        var newPos = currentPos.applyMatrix4(rotationMatrix);
+        object.position.x = newPos.x;
+        object.position.y = newPos.y;
+        object.position.z = newPos.z;
     }
 }   
