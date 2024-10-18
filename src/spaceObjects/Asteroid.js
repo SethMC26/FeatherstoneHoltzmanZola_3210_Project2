@@ -47,7 +47,7 @@ export default class Asteroid {
         this.mesh.position.x = THREE.MathUtils.randFloatSpread(2000); // Random x position
         this.mesh.position.y = THREE.MathUtils.randFloatSpread(2000); // Random y position
         this.mesh.position.z = THREE.MathUtils.randFloat(-1000, 350); // Random z (depth)
-        
+
         //compute bounding box 
         this.boundingBox = new THREE.Box3().setFromObject(this.mesh);
 
@@ -59,13 +59,15 @@ export default class Asteroid {
     /**
      * Moves object to back of scene to be reused 
      * 
-     * @param {THREE.Vector3} Camera's position (camera.position)
+     * @param {THREE.Vector3} cameraPos Camera's position (camera.position)
      * @note API name could be improved possibly 
      */
     resetObject(cameraPos) {
-        this.mesh.position.z = cameraPos.z + THREE.MathUtils.randFloat(-3000, -500); // Reset to far distance
-        this.mesh.position.x = THREE.MathUtils.randFloatSpread(2000); // Randomize x position
-        this.mesh.position.y = THREE.MathUtils.randFloatSpread(2000); // Randomize y position
+        let randomSign = Math.random() < 0.5 ? -1 : 1;
+
+        this.mesh.position.z = cameraPos.z + 1000 * randomSign; // Reset to far distance
+        this.mesh.position.x = cameraPos.x + THREE.MathUtils.randFloatSpread(2000); // Randomize x position
+        this.mesh.position.y = cameraPos.y + THREE.MathUtils.randFloatSpread(2000); // Randomize y position
     }
 
     /**
@@ -90,10 +92,24 @@ export default class Asteroid {
         this.boundingBoxHelper.update();
     }
 
+    /**
+     * Checks if bounding box for this object intersects another
+     * @param {THREE.Box3} boundingBox Box3 of object 
+     * @returns true if intersecting false otherwise
+     */
     intersectsBox(boundingBox) {
+        if (this.boundingBox.containsBox(boundingBox)) {
+            return false;
+        }
+
         return this.boundingBox.intersectsBox(boundingBox)
     }
 
+    /**
+     * 
+     * @param {THREE.Vector3} position Vec3 of position to check
+     * @returns True if point in bounding box false otherwise
+     */
     intersectsPosition(position) {
         return this.boundingBox.containsPoint(position);
     }

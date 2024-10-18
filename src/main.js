@@ -17,7 +17,7 @@ const camera = new THREE.PerspectiveCamera(
 75, // Field of view
 window.innerWidth / window.innerHeight, // Aspect ratio
 0.1, // Near plane
-1000 // Far plane
+2000 // Far plane
 );
 camera.position.z = 500; // Move the camera back to see the stars and asteroids
 
@@ -49,9 +49,17 @@ scene.add(light);
 
 // Function to create the starfield
 function createStars() {
-    let starField1 = new StarField();
+    let starField1 = new StarField(650, 2000);
     scene.add(starField1.mesh);
     starFields.push(starField1);
+
+    let starField2 = new StarField(-650,2000);
+    scene.add(starField2.mesh);
+    starFields.push(starField2);
+
+    let starField3 = new StarField(100, 500);
+    scene.add(starField3.mesh);
+    starFields.push(starField3);
 }
 
 // Create asteroid objects
@@ -82,7 +90,7 @@ function animate() {
     // Move stars forward
     starFields.forEach((starField) => {
         //let positions = starField.geometry.attributes.position.array;
-        if (starField.mesh.position.z > camera.position.z) {
+        if (starField.mesh.position.distanceTo(camera.position) > 450) {
             starField.resetObject(camera.position);
         }
         
@@ -100,7 +108,7 @@ function animate() {
         asteroid.updateObject(deltaTime * 2);
 
         // Reset the asteroid if it's behind the camera
-        if (asteroid.mesh.position.z > camera.position.z + 100) {
+        if (asteroid.mesh.position.distanceTo(camera.position) > 2000) {
             asteroid.resetObject(camera.position)
         }
 
@@ -108,6 +116,14 @@ function animate() {
         if (asteroid.intersectsPosition(camera.position)) {
             console.log("You hit an asteroid! Pos: ", camera.position);
         }
+
+        /* Might want this in future or something similar
+        asteroids.forEach((asteroidToCheck) => {
+            if (asteroid.intersectsBox(asteroidToCheck.boundingBox)) {
+                console.log("Asteroids hit eachother!")
+            }
+        });
+        */
     });
 
     // Render the scene from the perspective of the camera

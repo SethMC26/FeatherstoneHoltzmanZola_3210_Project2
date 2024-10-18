@@ -6,14 +6,15 @@ export default class StarField {
      * Creates StarField object
      * @author Gaby Zola wrote the code contained in constructor
      */
-    constructor(starCount=2000) {
+    constructor(offsetVect, starCount=2000) {
+        this.offset = offsetVect;
         this.geometry = new THREE.BufferGeometry();
         this.positions = new Float32Array(starCount * 3); // X, Y, Z for each star
 
         for (let i = 0; i < starCount; i++) {
             // Randomly position the stars within a large cube
-            this.positions[i * 3] = THREE.MathUtils.randFloatSpread(2000); // x
-            this.positions[i * 3 + 1] = THREE.MathUtils.randFloatSpread(2000); // y
+            this.positions[i * 3] = THREE.MathUtils.randFloatSpread(1000); // x
+            this.positions[i * 3 + 1] = THREE.MathUtils.randFloatSpread(1000); // y
             this.positions[i * 3 + 2] = THREE.MathUtils.randFloat(-1000, 350); // z (depth)
         }
 
@@ -38,8 +39,9 @@ export default class StarField {
      * @note API name could be improved possibly 
      */
     resetObject(cameraPos) {
-        this.mesh.position.z = cameraPos.z - 650; // Reset to far distance
-        this.mesh.position.x = THREE.MathUtils.randFloatSpread(100); // Randomize x position
-        this.mesh.position.y = THREE.MathUtils.randFloatSpread(100); // Randomize y position
+        this.mesh.position.x = cameraPos.x // Randomize x position
+        this.mesh.position.y = cameraPos.y // Randomize y position
+        this.mesh.position.z = cameraPos.z - this.offset// Reset to far distance
+
     }
 }
