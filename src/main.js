@@ -103,6 +103,11 @@ function animate() {
         if (asteroid.mesh.position.z > camera.position.z + 100) {
             asteroid.resetObject(camera.position)
         }
+
+        //check object intersects camera 
+        if (asteroid.intersectsPosition(camera.position)) {
+            console.log("You hit an asteroid! Pos: ", camera.position);
+        }
     });
 
     // Render the scene from the perspective of the camera

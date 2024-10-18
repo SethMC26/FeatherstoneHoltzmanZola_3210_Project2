@@ -89,4 +89,12 @@ export default class Asteroid {
         this.boundingBox = new THREE.Box3().setFromObject(this.mesh);
         this.boundingBoxHelper.update();
     }
+
+    intersectsBox(boundingBox) {
+        return this.boundingBox.intersectsBox(boundingBox)
+    }
+
+    intersectsPosition(position) {
+        return this.boundingBox.containsPoint(position);
+    }
 }   
