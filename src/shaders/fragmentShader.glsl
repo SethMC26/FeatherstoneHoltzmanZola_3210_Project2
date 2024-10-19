@@ -17,7 +17,7 @@ void main()
     //normalize scale factor
     //NOTE this is from the main.js function Math.sin(time * asteroid.scaleSpeed) * 0.85 + 1.75 for min and max values
     //if this function changes the below code must also change highly reccomend using desmos to find min/max values
-    float scaleFacNorm = (scaleFactor - 0.8 ) / (3.8 - 0.8);
+    float scaleFacNorm = (scaleFactor - 1.5 ) / (4.5 - 1.5);
 
     //Colors for brown orange and red 
     vec3 color1 = vec3(0.52, 0.26, 0.02); // brown
@@ -28,7 +28,6 @@ void main()
     color += vec3(rand*0.2718281828459045); // Add random value to each rgb(eulers number just for fun)
     
     //scale psychedelic effect with time on a wave 
-    //float ugScale = sin(time * 0.0015);
     ugScale += sin(time * 0.00015);
 
     //really fun variable to change !!!
