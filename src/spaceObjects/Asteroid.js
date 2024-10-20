@@ -103,7 +103,8 @@ export default class Asteroid {
         //set scale 
         this.mesh.scale.setScalar(this.scaleFactor);
 
-        
+        this.movementType = this.movement.CORKSCREW;
+
         //move based on movement type
         switch(this.movementType) {
             case this.movement.LINEAR:
