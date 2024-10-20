@@ -61,7 +61,8 @@ export default class Asteroid {
             }
         )
         
-        this.material = new THREE.MeshBasicMaterial({color: 0xFFFFFF * Math.random()})
+        //uncomment line for easy debug
+        //this.material = new THREE.MeshBasicMaterial({color: 0xFFFFFF * Math.random()})
         this.mesh = new THREE.Mesh(this.geometry, this.material);
    
         // Randomize the position, size, and rotation of each asteroid
@@ -102,8 +103,6 @@ export default class Asteroid {
         
         //set scale 
         this.mesh.scale.setScalar(this.scaleFactor);
-
-        this.movementType = this.movement.CORKSCREW;
 
         //move based on movement type
         switch(this.movementType) {
