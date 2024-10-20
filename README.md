@@ -3,6 +3,17 @@
 
 @authors Gaby Zola, Seth Holtzman, Justin Featherstone
 
+# Known issues 
+If you have trouble with controls not being a valid import or not being found consider uninstall three and vite then reinstalling 
+
+```bash
+npm uninstall three
+npm uninstall vite
+
+npm install three
+npm install vite
+```
+
 # Quick Start 
 
 1. Install the required libraries
