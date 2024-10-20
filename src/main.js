@@ -21,6 +21,15 @@ window.innerWidth / window.innerHeight, // Aspect ratio
 );
 camera.position.z = 500; // Move the camera back to see the stars and asteroids
 
+const rearViewCamera = new THREE.PerspectiveCamera(
+    75,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    2000
+);
+rearViewCamera.position.z = 500;
+
+//rearViewCamera.up.set(1,1,-1)
 // Create the renderer and add it to the document
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -28,7 +37,7 @@ document.body.appendChild(renderer.domElement);
 
 
 const controls = new FirstPersonControls( camera, renderer.domElement );
-controls.autoForward = true
+//controls.autoForward = true
 controls.movementSpeed = 30;
 controls.constrainVertical = true;
 controls.keyControlsOn = false;
@@ -75,6 +84,9 @@ function createAsteroids() {
     }
 }
 
+let viewport = new THREE.Vector4();
+renderer.getCurrentViewport(viewport);
+
 // Update starfield and asteroids
 function animate() {
 
@@ -106,7 +118,7 @@ function animate() {
         asteroid.uniforms.time.value += deltaTime
 
         //update drift 
-        asteroid.updateObject(deltaTime * 2);
+        asteroid.updateObject(deltaTime * 2 * 0.0001);
 
         // Reset the asteroid if it's behind the camera
         if (asteroid.mesh.position.distanceTo(camera.position) > 2000) {
@@ -127,9 +139,38 @@ function animate() {
         */
     });
 
-    // Render the scene from the perspective of the camera
+    //render front view
+    renderer.setViewport(viewport)
+    renderer.setClearColor(0x00000)
+    renderer.setScissorTest( false);
+
+    camera.updateProjectionMatrix();
+
     renderer.render(scene, camera);
 
+    //set rear view camera position to front camera position 
+    rearViewCamera.position.set(camera.position.x, camera.position.y, camera.position.z)
+
+    //have rear view camera look directly behind our camera 
+    let rearViewLookAt = new THREE.Vector3();
+    
+    rearViewLookAt.x = controls.lookAtVec.x
+    rearViewLookAt.y = controls.lookAtVec.y
+    rearViewLookAt.z = controls.lookAtVec.z
+    
+    //console.log(controls.lookAtVec, rearViewLookAt)
+    rearViewCamera.lookAt(rearViewLookAt)
+
+    renderer.setClearColor(0xaeb4b8)
+    renderer.setViewport(window.innerWidth/4,window.innerHeight - 300,1000, 250)
+    renderer.setScissor(window.innerWidth/4,window.innerHeight - 300,1000, 250)
+    renderer.setScissorTest( true);
+
+    rearViewCamera.updateProjectionMatrix();
+    
+    renderer.render(scene, rearViewCamera);
+
+    //console.log(controls.lookAtVec)
     requestAnimationFrame(animate);
 }
 
