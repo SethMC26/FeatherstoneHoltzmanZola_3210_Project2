@@ -45,8 +45,8 @@ export default class Asteroid {
 
         //speed each asteroid scales up and down 
         //not sure if i like each asteroid scaling up and down by itself or all asteroids scaling together better
-        //this.scaleSpeed = THREE.MathUtils.randFloat(.0001,2)
-        this.scaleSpeed = 1.35;
+        this.scaleSpeed = THREE.MathUtils.randFloat(.0001,2)
+        //this.scaleSpeed = 1.35;
         
         //set random size of asteroid 
         let size = THREE.MathUtils.randFloat(15, 20);
@@ -100,8 +100,6 @@ export default class Asteroid {
         
         //set scale 
         this.mesh.scale.setScalar(this.scaleFactor);
-
-        this.movementType = this.movement.CORKSCREW;
 
         //move based on movement type
         switch(this.movementType) {
