@@ -61,6 +61,8 @@ export default class Asteroid {
             }
         )
         
+        //uncomment line for easy debug
+        //this.material = new THREE.MeshBasicMaterial({color: 0xFFFFFF * Math.random()})
         this.mesh = new THREE.Mesh(this.geometry, this.material);
    
         // Randomize the position, size, and rotation of each asteroid
@@ -86,8 +88,8 @@ export default class Asteroid {
         let randomSign = Math.random() < 0.5 ? -1 : 1;
 
         this.mesh.position.z = cameraPos.z + 1000 * randomSign; // Reset to far distance
-        this.mesh.position.x = cameraPos.x + THREE.MathUtils.randFloatSpread(2000); // Randomize x position
-        this.mesh.position.y = cameraPos.y + THREE.MathUtils.randFloatSpread(2000); // Randomize y position
+        this.mesh.position.x = cameraPos.x + THREE.MathUtils.randFloatSpread(1500); // Randomize x position
+        this.mesh.position.y = cameraPos.y + THREE.MathUtils.randFloatSpread(1500); // Randomize y position
     }
 
     /**
@@ -95,6 +97,7 @@ export default class Asteroid {
      * @param {Number} scale Scale to update drift by (delta time is a good idea here)
      */
     updateObject(scale){
+        
         //update unifroms 
         this.uniforms.scaleFactor.value = this.scaleFactor;
         

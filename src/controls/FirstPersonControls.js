@@ -44,6 +44,9 @@ class FirstPersonControls extends Controls {
         //add ability to turn off keyboard controls
         this.keyControlsOn = true;
         this.mousePointersOn = true;
+
+		//add ability to see current lookAtVector
+		this.lookAtVec = new THREE.Vector3();
 		// internals
 
 		this._autoSpeedFactor = 0.0;
@@ -143,6 +146,7 @@ class FirstPersonControls extends Controls {
 
 		}
 
+		this.lookAtVec = _target;
 		this.object.lookAt( _target );
 
 		this._setOrientation();
@@ -212,6 +216,8 @@ class FirstPersonControls extends Controls {
 		const position = this.object.position;
 
 		_targetPosition.setFromSphericalCoords( 1, phi, theta ).add( position );
+
+		this.lookAtVec = _targetPosition.clone();
 
 		this.object.lookAt( _targetPosition );
 

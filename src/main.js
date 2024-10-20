@@ -26,6 +26,23 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+let viewport = new THREE.Vector4();
+renderer.getCurrentViewport(viewport);
+
+//create second camera 
+const rearViewCamera = new THREE.PerspectiveCamera(
+    75,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    2000
+);
+rearViewCamera.position.z = 500;
+//Have camera look behind 
+rearViewCamera.fov = 90;
+rearViewCamera.up.set(0,1,0);
+rearViewCamera.rotateX(Math.PI);
+
+let rearViewport = new THREE.Vector4(window.innerWidth/4,window.innerHeight/1.45,window.innerWidth/2, window.innerHeight/4);
 
 const controls = new FirstPersonControls( camera, renderer.domElement );
 controls.autoForward = true
@@ -127,12 +144,36 @@ function animate() {
         */
     });
 
-    // Render the scene from the perspective of the camera
+    //render front view
+    renderer.setViewport(viewport)
+    renderer.setClearColor(0x00000)
+    renderer.setScissorTest( false);
+
+    camera.updateProjectionMatrix();
+    
     renderer.render(scene, camera);
+
+    //set rear view camera position to front camera position 
+    rearViewCamera.position.set(camera.position.x, camera.position.y, camera.position.z)
+
+    //have rear view camera look at same spot as front camera  
+    rearViewCamera.lookAt(controls.lookAtVec)
+    //turn rearView Camera around 
+    rearViewCamera.rotateX(Math.PI)
+
+    //set clear color to grey to look like a mirror 
+    renderer.setClearColor(0x1E202B)
+    //set viewport and scissor
+    renderer.setViewport(rearViewport)
+    renderer.setScissor(rearViewport)
+    renderer.setScissorTest( true);
+
+    rearViewCamera.updateProjectionMatrix();
+    
+    renderer.render(scene, rearViewCamera);
 
     requestAnimationFrame(animate);
 }
-
  // Start the animation loop
  animate();
 
@@ -142,7 +183,14 @@ window.addEventListener("resize", onWindowResize, false);
 // Handle window resizing
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
+    camera.aspect = window.innerWidth / window.innerHeight;
+
     camera.updateProjectionMatrix();
+    rearViewCamera.updateProjectionMatrix();
+    rearViewport = new THREE.Vector4(window.innerWidth/4,window.innerHeight/1.45,window.innerWidth/2, window.innerHeight/4);
+
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.getCurrentViewport(viewport);
+
     controls.handleResize();
 }
