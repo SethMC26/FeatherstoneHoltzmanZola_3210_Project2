@@ -88,8 +88,8 @@ export default class Asteroid {
         let randomSign = Math.random() < 0.5 ? -1 : 1;
 
         this.mesh.position.z = cameraPos.z + 1000 * randomSign; // Reset to far distance
-        this.mesh.position.x = cameraPos.x + THREE.MathUtils.randFloatSpread(2000); // Randomize x position
-        this.mesh.position.y = cameraPos.y + THREE.MathUtils.randFloatSpread(2000); // Randomize y position
+        this.mesh.position.x = cameraPos.x + THREE.MathUtils.randFloatSpread(1500); // Randomize x position
+        this.mesh.position.y = cameraPos.y + THREE.MathUtils.randFloatSpread(1500); // Randomize y position
     }
 
     /**

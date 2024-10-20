@@ -38,9 +38,11 @@ const rearViewCamera = new THREE.PerspectiveCamera(
 );
 rearViewCamera.position.z = 500;
 //Have camera look behind 
-rearViewCamera.rotateX(Math.PI)
+rearViewCamera.fov = 90;
+rearViewCamera.up.set(0,1,0);
+rearViewCamera.rotateX(Math.PI);
 
-let rearViewport = new THREE.Vector4(window.innerWidth/4,window.innerHeight - 300,1000, 250);
+let rearViewport = new THREE.Vector4(window.innerWidth/4,window.innerHeight/1.45,window.innerWidth/2, window.innerHeight/4);
 
 const controls = new FirstPersonControls( camera, renderer.domElement );
 controls.autoForward = true
@@ -160,7 +162,7 @@ function animate() {
     rearViewCamera.rotateX(Math.PI)
 
     //set clear color to grey to look like a mirror 
-    renderer.setClearColor(0xaeb4b8)
+    renderer.setClearColor(0x1E202B)
     //set viewport and scissor
     renderer.setViewport(rearViewport)
     renderer.setScissor(rearViewport)
@@ -181,7 +183,14 @@ window.addEventListener("resize", onWindowResize, false);
 // Handle window resizing
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
+    camera.aspect = window.innerWidth / window.innerHeight;
+
     camera.updateProjectionMatrix();
+    rearViewCamera.updateProjectionMatrix();
+    rearViewport = new THREE.Vector4(window.innerWidth/4,window.innerHeight/1.45,window.innerWidth/2, window.innerHeight/4);
+
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.getCurrentViewport(viewport);
+
     controls.handleResize();
 }
