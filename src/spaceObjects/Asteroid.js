@@ -61,6 +61,11 @@ export default class Asteroid {
             }
         )
         
+
+        //additional rasterization component setting a different depth test for rasterizer
+        //this solves star issue and adds a trippy like effect of objects being in odd spots 
+        this.material.depthFunc = THREE.NotEqualDepth
+
         //uncomment line for easy debug
         //this.material = new THREE.MeshBasicMaterial({color: 0xFFFFFF * Math.random()})
         this.mesh = new THREE.Mesh(this.geometry, this.material);
@@ -97,6 +102,7 @@ export default class Asteroid {
      * @param {Number} scale Scale to update drift by (delta time is a good idea here)
      */
     updateObject(scale){
+        //console.log(scale);
         
         //update unifroms 
         this.uniforms.scaleFactor.value = this.scaleFactor;
@@ -107,11 +113,13 @@ export default class Asteroid {
         //move based on movement type
         switch(this.movementType) {
             case this.movement.LINEAR:
-                this.mesh.translateX(this.tVec.x * scale);
-                this.mesh.translateY(this.tVec.y * scale);
-                this.mesh.translateZ(this.tVec.z * scale);
+                let linearScale = scale * 3;
+                this.mesh.translateX(this.tVec.x * linearScale);
+                this.mesh.translateY(this.tVec.y * linearScale);
+                this.mesh.translateZ(this.tVec.z * linearScale);
                 break;
             case this.movement.PARABOLIC:
+                //console.log(scale * 0.01);
                 this.rotateAboutWorldAxis(this.mesh, this.rotationAxis, scale * 0.01);
                 break;
             case this.movement.CORKSCREW:
