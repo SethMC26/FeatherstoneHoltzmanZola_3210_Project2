@@ -123,7 +123,7 @@ function animate() {
         asteroid.uniforms.time.value += deltaTime
 
         //update drift 
-        asteroid.updateObject(deltaTime * 2);
+        asteroid.updateObject(deltaTime);
 
         // Reset the asteroid if it's behind the camera
         if (asteroid.mesh.position.distanceTo(camera.position) > 2000) {

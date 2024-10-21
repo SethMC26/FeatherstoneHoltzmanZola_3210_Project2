@@ -112,14 +112,14 @@ export default class Asteroid {
                 this.mesh.translateZ(this.tVec.z * scale);
                 break;
             case this.movement.PARABOLIC:
-                this.rotateAboutWorldAxis(this.mesh, this.rotationAxis, 0.001 * scale);
+                this.rotateAboutWorldAxis(this.mesh, this.rotationAxis, scale * 0.01);
                 break;
             case this.movement.CORKSCREW:
                 let normTVec = this.tVec.clone().normalize();
                 this.mesh.translateX(this.tVec.x * scale);
                 this.mesh.translateY(this.tVec.y * scale);
                 this.mesh.translateZ(this.tVec.z * scale);
-                this.rotateAboutWorldAxis(this.mesh, normTVec, 0.001 * scale);
+                this.rotateAboutWorldAxis(this.mesh, normTVec, 0.01 * scale);
                 break;
         }
 
@@ -150,9 +150,11 @@ export default class Asteroid {
         return this.boundingBox.containsPoint(position);
     }
 
-    //from class example 
-    //@NOTE ADD CREDIT BEFORE SUBMISSION!!!!
-
+    //From Prof. Stuetzle unit6 Lecture notes nothing has been modified 
+    // From https://stackoverflow.com/questions/26660395/rotation-around-an-axis-three-js
+    // In order to rotate about an axis , you must construct the
+    // rotation matrix ( which will rotate about
+    // the axis by default )
     rotateAboutWorldAxis(object, axis, angle) {
         var rotationMatrix = new THREE.Matrix4();
         rotationMatrix.makeRotationAxis( axis.normalize(), angle );
