@@ -123,14 +123,14 @@ export default class Asteroid {
                 this.mesh.translateZ(this.tVec.z * linearScale);
                 break;
             case this.movement.PARABOLIC:
-                this.rotateAboutWorldAxis(this.mesh, this.rotationAxis, deltaTime * 0.01);
+                this.rotateAboutWorldAxis(this.mesh, this.rotationAxis, deltaTime * 0.0075);
                 break;
             case this.movement.CORKSCREW:
                 let normTVec = this.tVec.clone().normalize();
                 this.mesh.translateX(this.tVec.x * deltaTime);
                 this.mesh.translateY(this.tVec.y * deltaTime);
                 this.mesh.translateZ(this.tVec.z * deltaTime);
-                this.rotateAboutWorldAxis(this.mesh, normTVec, 0.01 * deltaTime);
+                this.rotateAboutWorldAxis(this.mesh, normTVec, 0.0075 * deltaTime);
                 break;
         }
 
