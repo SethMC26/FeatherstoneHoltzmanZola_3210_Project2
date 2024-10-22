@@ -60,7 +60,7 @@ export default class Asteroid {
                 uniforms: this.uniforms
             }
         )
-        
+        this.material = new THREE.MeshBasicMaterial({color: 0xFFFFFF * Math.random()})
 
         //additional rasterization component setting a different depth test for rasterizer
         //this solves star issue and adds a trippy like effect of objects being in odd spots 
@@ -102,7 +102,6 @@ export default class Asteroid {
      * @param {Number} deltaTime Scale to update drift by (delta time is a good idea here)
      */
     updateObject(deltaTime){
-        //console.log(scale);
         //use time as a constantly increasing number(for sin function)
         let time = Date.now() * 0.001 
         //scale astroid up by oscillating value(sin) with time and asteroid scaling factor
@@ -110,7 +109,7 @@ export default class Asteroid {
         //update unifroms 
         this.uniforms.scaleFactor.value = this.scaleFactor;
         this.uniforms.time.value += deltaTime;
-
+        
         //set scale 
         this.mesh.scale.setScalar(this.scaleFactor);
 
@@ -123,10 +122,10 @@ export default class Asteroid {
                 this.mesh.translateZ(this.tVec.z * linearScale);
                 break;
             case this.movement.PARABOLIC:
-                //console.log(scale * 0.01);
                 this.rotateAboutWorldAxis(this.mesh, this.rotationAxis, deltaTime * 0.01);
                 break;
             case this.movement.CORKSCREW:
+                break;
                 let normTVec = this.tVec.clone().normalize();
                 this.mesh.translateX(this.tVec.x * deltaTime);
                 this.mesh.translateY(this.tVec.y * deltaTime);
@@ -152,14 +151,27 @@ export default class Asteroid {
 
         return this.boundingBox.intersectsBox(boundingBox)
     }
-
+    
     /**
      * 
      * @param {THREE.Vector3} position Vec3 of position to check
      * @returns True if point in bounding box false otherwise
      */
     intersectsPosition(position) {
-        return this.boundingBox.containsPoint(position);
+        if (!this.boundingBox.containsPoint(position)) {
+            return false;
+        }
+
+        this.movementType = this.movement.LINEAR;
+
+        this.tVec.x *= -1;
+        this.tVec.y *= -1;
+        this.mesh.position.z -= 10;
+        this.tVec.z = -10;
+        
+        this.updateObject(5)
+
+        return true;
     }
 
     //From Prof. Stuetzle unit6 Lecture notes nothing has been modified 
