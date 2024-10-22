@@ -60,7 +60,8 @@ export default class Asteroid {
                 uniforms: this.uniforms
             }
         )
-        this.material = new THREE.MeshBasicMaterial({color: 0xFFFFFF * Math.random()})
+        //uncomment below line for easier debugging 
+        //this.material = new THREE.MeshBasicMaterial({color: 0xFFFFFF * Math.random()})
 
         //additional rasterization component setting a different depth test for rasterizer
         //this solves star issue and adds a trippy like effect of objects being in odd spots 
@@ -125,7 +126,6 @@ export default class Asteroid {
                 this.rotateAboutWorldAxis(this.mesh, this.rotationAxis, deltaTime * 0.01);
                 break;
             case this.movement.CORKSCREW:
-                break;
                 let normTVec = this.tVec.clone().normalize();
                 this.mesh.translateX(this.tVec.x * deltaTime);
                 this.mesh.translateY(this.tVec.y * deltaTime);
