@@ -1,12 +1,7 @@
-import Asteroid from "./spaceObjects/Asteroid";
-import StarField from "./spaceObjects/StarFields";
-
 import { FirstPersonControls } from './controls/FirstPersonControls';
+import ObjectPool from "./spaceObjects/ObjectPool";
 
-let starFields = [];
-let asteroids = [];
-let asteroidCount = 250;
-
+//create Clock to use for time and delta time
 const clock = new THREE.Clock(); 
 
 // Create the scene
@@ -26,6 +21,7 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+//save viewport of main camera 
 let viewport = new THREE.Vector4();
 renderer.getCurrentViewport(viewport);
 
@@ -37,13 +33,15 @@ const rearViewCamera = new THREE.PerspectiveCamera(
     1500
 );
 rearViewCamera.position.z = 500;
-//Have camera look behind 
 rearViewCamera.fov = 90;
 rearViewCamera.up.set(0,1,0);
+//Have camera look behind 
 rearViewCamera.rotateX(Math.PI);
 
+//create rearViewport
 let rearViewport = new THREE.Vector4(window.innerWidth/4,window.innerHeight/1.45,window.innerWidth/2, window.innerHeight/4);
 
+//create controls for main camera
 const controls = new FirstPersonControls( camera, renderer.domElement );
 controls.autoForward = true
 controls.movementSpeed = 30;
@@ -53,96 +51,24 @@ controls.mousePointersOn = false;
 //uncomment below line to disable mouse controls(simply move forward)
 //controls.activeLook = false;
 
-// Create the stars (particles)
-createStars();
-
-// Create the asteroids (3D objects)
-createAsteroids();
-
 // Add a basic light source
 let light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(camera.position.x, camera.position.y, 1);
 scene.add(light);
 
-// Function to create the starfield
-function createStars() {
-    let starField1 = new StarField(650, 2000);
-    scene.add(starField1.mesh);
-    starFields.push(starField1);
-
-    let starField2 = new StarField(-650,2000);
-    scene.add(starField2.mesh);
-    starFields.push(starField2);
-
-    let starField3 = new StarField(100, 500);
-    scene.add(starField3.mesh);
-    starFields.push(starField3);
-}
-
-// Create asteroid objects
-function createAsteroids() {
-    for (let i = 0; i < asteroidCount; i++) {
-        let newAsteroid = new Asteroid();
-
-        // Add the asteroid to the scene
-        scene.add(newAsteroid.mesh);
-        //uncomment to see boundingBoxes
-        //scene.add(newAsteroid.boundingBoxHelper)
-        asteroids.push(newAsteroid);
-    }
-}
-
+const objectPool = new ObjectPool(scene);
 // Update starfield and asteroids
 function animate() {
 
     //get deltaTime using clock object then make larger since its a small value 
     //deltaTime is the time between now and last time deltaTime was called 
     let deltaTime = clock.getDelta() * 10;
-    
-    //use time as a constantly increasing number(for sin function)
-    let time = Date.now() * 0.001 
 
-    //update camera controls
+    //update camera controls 
     controls.update(deltaTime * 1.2);
 
-    // Move stars forward
-    starFields.forEach((starField) => {
-        //let positions = starField.geometry.attributes.position.array;
-        if (starField.mesh.position.distanceTo(camera.position) > 450) {
-            starField.resetObject(camera.position);
-        }
-        
-        starField.geometry.attributes.position.needsUpdate = true; // Mark as needing update
-    });
-
-    //check asteroids and rotate them
-    asteroids.forEach((asteroid) => {
-
-        //scale astroid up by oscillating value(sin) with time and asteroid scaling factor
-        asteroid.scaleFactor = Math.sin(time * asteroid.scaleSpeed) * 1.5 + 3
-        asteroid.uniforms.time.value += deltaTime
-
-        //update drift 
-        asteroid.updateObject(deltaTime);
-
-        // Reset the asteroid if it's behind the camera
-        if (asteroid.mesh.position.distanceTo(camera.position) > 2000) {
-            asteroid.resetObject(camera.position)
-        }
-
-        //check object intersects camera 
-        if (asteroid.intersectsPosition(camera.position)) {
-            console.log("You hit an asteroid! Pos: ", camera.position);
-        }
-
-        /* Might want this in future or something similar
-        asteroids.forEach((asteroidToCheck) => {
-            if (asteroid.intersectsBox(asteroidToCheck.boundingBox)) {
-                console.log("Asteroids hit eachother!")
-            }
-        });
-        */
-    });
+    //have object Pool Update objects 
+    objectPool.updateObjects(deltaTime, camera.position);
 
     //render front view
     renderer.setViewport(viewport)

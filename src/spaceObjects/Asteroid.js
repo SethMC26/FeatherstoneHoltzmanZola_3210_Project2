@@ -99,35 +99,39 @@ export default class Asteroid {
 
     /**
      * Update the objects scale, and location with a scale factor(delta time)
-     * @param {Number} scale Scale to update drift by (delta time is a good idea here)
+     * @param {Number} deltaTime Scale to update drift by (delta time is a good idea here)
      */
-    updateObject(scale){
+    updateObject(deltaTime){
         //console.log(scale);
-        
+        //use time as a constantly increasing number(for sin function)
+        let time = Date.now() * 0.001 
+        //scale astroid up by oscillating value(sin) with time and asteroid scaling factor
+        this.scaleFactor = Math.sin(time * this.scaleSpeed) * 1.5 + 3
         //update unifroms 
         this.uniforms.scaleFactor.value = this.scaleFactor;
-        
+        this.uniforms.time.value += deltaTime;
+
         //set scale 
         this.mesh.scale.setScalar(this.scaleFactor);
 
         //move based on movement type
         switch(this.movementType) {
             case this.movement.LINEAR:
-                let linearScale = scale * 3;
+                let linearScale = deltaTime * 3;
                 this.mesh.translateX(this.tVec.x * linearScale);
                 this.mesh.translateY(this.tVec.y * linearScale);
                 this.mesh.translateZ(this.tVec.z * linearScale);
                 break;
             case this.movement.PARABOLIC:
                 //console.log(scale * 0.01);
-                this.rotateAboutWorldAxis(this.mesh, this.rotationAxis, scale * 0.01);
+                this.rotateAboutWorldAxis(this.mesh, this.rotationAxis, deltaTime * 0.01);
                 break;
             case this.movement.CORKSCREW:
                 let normTVec = this.tVec.clone().normalize();
-                this.mesh.translateX(this.tVec.x * scale);
-                this.mesh.translateY(this.tVec.y * scale);
-                this.mesh.translateZ(this.tVec.z * scale);
-                this.rotateAboutWorldAxis(this.mesh, normTVec, 0.01 * scale);
+                this.mesh.translateX(this.tVec.x * deltaTime);
+                this.mesh.translateY(this.tVec.y * deltaTime);
+                this.mesh.translateZ(this.tVec.z * deltaTime);
+                this.rotateAboutWorldAxis(this.mesh, normTVec, 0.01 * deltaTime);
                 break;
         }
 
