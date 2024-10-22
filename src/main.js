@@ -7,6 +7,11 @@ const clock = new THREE.Clock();
 // Create the scene
 const scene = new THREE.Scene();
 
+// Create the renderer and add it to the document
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
 // Create 2 cameras for front and rear-view 
 const camera = new THREE.PerspectiveCamera(
 75, // Field of view
@@ -16,30 +21,9 @@ window.innerWidth / window.innerHeight, // Aspect ratio
 );
 camera.position.z = 500; // Move the camera back to see the stars and asteroids
 
-// Create the renderer and add it to the document
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
 //save viewport of main camera 
 let viewport = new THREE.Vector4();
 renderer.getCurrentViewport(viewport);
-
-//create second camera 
-const rearViewCamera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1500
-);
-rearViewCamera.position.z = 500;
-rearViewCamera.fov = 90;
-rearViewCamera.up.set(0,1,0);
-//Have camera look behind 
-rearViewCamera.rotateX(Math.PI);
-
-//create rearViewport
-let rearViewport = new THREE.Vector4(window.innerWidth/4,window.innerHeight/1.45,window.innerWidth/2, window.innerHeight/4);
 
 //create controls for main camera
 const controls = new FirstPersonControls( camera, renderer.domElement );
@@ -51,12 +35,34 @@ controls.mousePointersOn = false;
 //uncomment below line to disable mouse controls(simply move forward)
 //controls.activeLook = false;
 
+//create second camera 
+const rearViewCamera = new THREE.PerspectiveCamera(
+    75,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1500
+);
+rearViewCamera.position.z = 500;
+rearViewCamera.fov = 90;
+
+//create rearViewport
+let rearViewport = new THREE.Vector4(window.innerWidth/4,window.innerHeight/1.45,window.innerWidth/2, window.innerHeight/4);
+
+const rearViewControls = new FirstPersonControls( rearViewCamera, renderer.domElement );
+rearViewControls.autoForward = false // we manually set position
+rearViewControls.movementSpeed = 30;
+rearViewControls.constrainVertical = true;
+rearViewControls.keyControlsOn = false;
+rearViewControls.mousePointersOn = false;
+
 // Add a basic light source
 let light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(camera.position.x, camera.position.y, 1);
 scene.add(light);
 
+//create new ObjectPool to create and manage objects in our scene
 const objectPool = new ObjectPool(scene);
+
 // Update starfield and asteroids
 function animate() {
 
@@ -66,6 +72,7 @@ function animate() {
 
     //update camera controls 
     controls.update(deltaTime * 1.2);
+    rearViewControls.update(deltaTime * 1.2);
 
     //have object Pool Update objects 
     objectPool.updateObjects(deltaTime, camera.position);
@@ -82,10 +89,7 @@ function animate() {
     //set rear view camera position to front camera position 
     rearViewCamera.position.set(camera.position.x, camera.position.y, camera.position.z)
 
-    //have rear view camera look at same spot as front camera  
-    rearViewCamera.lookAt(controls.lookAtVec)
-    //turn rearView Camera around 
-    rearViewCamera.rotateX(Math.PI)
+    rearViewCamera.rotateX(Math.PI);
 
     //set clear color to grey to look like a mirror 
     renderer.setClearColor(0x1E202B)
