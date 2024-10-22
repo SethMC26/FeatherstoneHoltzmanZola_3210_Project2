@@ -20,7 +20,8 @@ export default class StarField {
 
         // Set the star positions as geometry
         this.geometry.setAttribute("position", new THREE.BufferAttribute(this.positions, 3));
-
+        this.geometry.attributes.position.needsUpdate = true; // Mark as needing update
+        
         // Create the material for stars (white points)
         this.material = new THREE.PointsMaterial({
             color: 0xffffff,

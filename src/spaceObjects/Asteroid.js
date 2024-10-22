@@ -60,7 +60,13 @@ export default class Asteroid {
                 uniforms: this.uniforms
             }
         )
-        
+        //uncomment below line for easier debugging 
+        //this.material = new THREE.MeshBasicMaterial({color: 0xFFFFFF * Math.random()})
+
+        //additional rasterization component setting a different depth test for rasterizer
+        //this solves star issue and adds a trippy like effect of objects being in odd spots 
+        this.material.depthFunc = THREE.NotEqualDepth
+
         //uncomment line for easy debug
         //this.material = new THREE.MeshBasicMaterial({color: 0xFFFFFF * Math.random()})
         this.mesh = new THREE.Mesh(this.geometry, this.material);
@@ -94,12 +100,16 @@ export default class Asteroid {
 
     /**
      * Update the objects scale, and location with a scale factor(delta time)
-     * @param {Number} scale Scale to update drift by (delta time is a good idea here)
+     * @param {Number} deltaTime Scale to update drift by (delta time is a good idea here)
      */
-    updateObject(scale){
-        
+    updateObject(deltaTime){
+        //use time as a constantly increasing number(for sin function)
+        let time = Date.now() * 0.001 
+        //scale astroid up by oscillating value(sin) with time and asteroid scaling factor
+        this.scaleFactor = Math.sin(time * this.scaleSpeed) * 1.5 + 3
         //update unifroms 
         this.uniforms.scaleFactor.value = this.scaleFactor;
+        this.uniforms.time.value += deltaTime;
         
         //set scale 
         this.mesh.scale.setScalar(this.scaleFactor);
@@ -107,19 +117,20 @@ export default class Asteroid {
         //move based on movement type
         switch(this.movementType) {
             case this.movement.LINEAR:
-                this.mesh.translateX(this.tVec.x * scale);
-                this.mesh.translateY(this.tVec.y * scale);
-                this.mesh.translateZ(this.tVec.z * scale);
+                let linearScale = deltaTime * 3;
+                this.mesh.translateX(this.tVec.x * linearScale);
+                this.mesh.translateY(this.tVec.y * linearScale);
+                this.mesh.translateZ(this.tVec.z * linearScale);
                 break;
             case this.movement.PARABOLIC:
-                this.rotateAboutWorldAxis(this.mesh, this.rotationAxis, 0.001 * scale);
+                this.rotateAboutWorldAxis(this.mesh, this.rotationAxis, deltaTime * 0.0075);
                 break;
             case this.movement.CORKSCREW:
                 let normTVec = this.tVec.clone().normalize();
-                this.mesh.translateX(this.tVec.x * scale);
-                this.mesh.translateY(this.tVec.y * scale);
-                this.mesh.translateZ(this.tVec.z * scale);
-                this.rotateAboutWorldAxis(this.mesh, normTVec, 0.001 * scale);
+                this.mesh.translateX(this.tVec.x * deltaTime);
+                this.mesh.translateY(this.tVec.y * deltaTime);
+                this.mesh.translateZ(this.tVec.z * deltaTime);
+                this.rotateAboutWorldAxis(this.mesh, normTVec, 0.0075 * deltaTime);
                 break;
         }
 
@@ -140,19 +151,34 @@ export default class Asteroid {
 
         return this.boundingBox.intersectsBox(boundingBox)
     }
-
+    
     /**
      * 
      * @param {THREE.Vector3} position Vec3 of position to check
      * @returns True if point in bounding box false otherwise
      */
     intersectsPosition(position) {
-        return this.boundingBox.containsPoint(position);
+        if (!this.boundingBox.containsPoint(position)) {
+            return false;
+        }
+
+        this.movementType = this.movement.LINEAR;
+
+        this.tVec.x *= -1;
+        this.tVec.y *= -1;
+        this.mesh.position.z -= 10;
+        this.tVec.z = -10;
+        
+        this.updateObject(5)
+
+        return true;
     }
 
-    //from class example 
-    //@NOTE ADD CREDIT BEFORE SUBMISSION!!!!
-
+    //From Prof. Stuetzle unit6 Lecture notes nothing has been modified 
+    // From https://stackoverflow.com/questions/26660395/rotation-around-an-axis-three-js
+    // In order to rotate about an axis , you must construct the
+    // rotation matrix ( which will rotate about
+    // the axis by default )
     rotateAboutWorldAxis(object, axis, angle) {
         var rotationMatrix = new THREE.Matrix4();
         rotationMatrix.makeRotationAxis( axis.normalize(), angle );
