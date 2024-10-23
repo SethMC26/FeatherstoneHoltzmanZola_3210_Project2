@@ -10,11 +10,10 @@ export default class TorusKnot {
         this.movement = {
             LINEAR: 0,
             PARABOLIC: 1,
-            CORKSCREW: 2
         };
 
         // Randomly choose the movement type
-        //this.movementType = THREE.MathUtils.randInt(0, 2);
+        this.movementType = THREE.MathUtils.randInt(0, 1);
 
         // Set transformation vector for linear movement
         this.tVec = new THREE.Vector3(
@@ -37,14 +36,19 @@ export default class TorusKnot {
         // Create torus knot geometry
         this.geometry = new THREE.TorusKnotGeometry(radius, tube, 100, 16);
 
+        let _rVec = new THREE.Vector3(Math.random() * 0.01,Math.random() * 0.01,Math.random() * 0.01)
+        this.uniforms = {
+            scaleFactor: { value: 1.0 },
+            time: { value: 0.0 },
+            rVec: { value: _rVec},
+            smallColor: {value: new THREE.Vector3(Math.random(), Math.random(), Math.random())},
+            bigColor: {value: new THREE.Vector3(Math.random(), Math.random(), Math.random())}
+        }
         // Shader material
         this.material = new THREE.ShaderMaterial({
             vertexShader: vertexShaderText,
             fragmentShader: fragmentShaderText,
-            uniforms: {
-                scaleFactor: { value: 1.0 },
-                time: { value: 0.0 }
-            }
+            uniforms: this.uniforms
         });
 
         // Create the mesh
@@ -70,7 +74,7 @@ export default class TorusKnot {
         this.mesh.position.set(
             cameraPos.x + THREE.MathUtils.randFloatSpread(1500),
             cameraPos.y + THREE.MathUtils.randFloatSpread(1500),
-            cameraPos.z + THREE.MathUtils.randFloatSpread(1000)
+            cameraPos.z + THREE.MathUtils.randFloatSpread(2000)
         );
     }
 
@@ -84,6 +88,8 @@ export default class TorusKnot {
         let time = Date.now() * 0.001;
         let scaleFactor = Math.sin(time * this.scaleSpeed) * 1.5 + 3;
         this.mesh.scale.setScalar(scaleFactor);
+        this.uniforms.scaleFactor.value = scaleFactor;
+        this.uniforms.time.value += deltaTime;
 
         // Movement logic
         switch (this.movementType) {
@@ -94,11 +100,7 @@ export default class TorusKnot {
                 this.mesh.translateZ(this.tVec.z * linearScale);
                 break;
             case this.movement.PARABOLIC:
-                this.rotateAroundWorldAxis(this.mesh, this.rotationAxis, deltaTime * 0.0075);
-                break;
-            case this.movement.CORKSCREW:
-                this.mesh.translateOnAxis(this.tVec.normalize(), deltaTime);
-                this.rotateAroundWorldAxis(this.mesh, this.tVec, deltaTime * 0.0075);
+                //this.rotateAboutWorldAxis(this.mesh, this.rotationAxis, deltaTime * 0.0075);
                 break;
         }
 
@@ -116,10 +118,18 @@ export default class TorusKnot {
         return this.boundingBox.containsPoint(position);
     }
 
-    // Rotate an object around an arbitrary world axis
-    rotateAroundWorldAxis(object, axis, angle) {
-        let rotationMatrix = new THREE.Matrix4();
-        rotationMatrix.makeRotationAxis(axis.normalize(), angle);
-        object.position.applyMatrix4(rotationMatrix);
+   //From Prof. Stuetzle unit6 Lecture notes nothing has been modified 
+    // From https://stackoverflow.com/questions/26660395/rotation-around-an-axis-three-js
+    // In order to rotate about an axis , you must construct the
+    // rotation matrix ( which will rotate about
+    // the axis by default )
+    rotateAboutWorldAxis(object, axis, angle) {
+        var rotationMatrix = new THREE.Matrix4();
+        rotationMatrix.makeRotationAxis( axis.normalize(), angle );
+        var currentPos = new THREE.Vector4(object.position.x, object.position.y, object.position.z, 1);
+        var newPos = currentPos.applyMatrix4(rotationMatrix);
+        object.position.x = newPos.x;
+        object.position.y = newPos.y;
+        object.position.z = newPos.z;
     }
 }

@@ -12,7 +12,7 @@ export default class ObjectPool {
      * @param {Number} asteroids Number of asteroids to create in the scene
      * @param {Number} torusKnots Number of torus knots to create in the scene
      */
-    constructor(scene, asteroidsNum = 250, torusKnots = 50) {
+    constructor(scene, asteroidsNum = 200, torusKnots = 50) {
         this.starFields = []
         this.asteroids = []
         this.torusKnots = []

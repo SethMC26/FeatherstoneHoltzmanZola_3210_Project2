@@ -40,7 +40,9 @@ export default class Asteroid {
         this.uniforms = {
             scaleFactor: { value: 1.0},
             time : { value: 0.0},
-            rVec: { value: _rVec}
+            rVec: { value: _rVec},
+            smallColor: {value: new THREE.Vector3(0.52, 0.26, 0.02)},
+            bigColor: {value: new THREE.Vector3(0.59, 0.19, 0.04)}
         }
 
         //speed each asteroid scales up and down 

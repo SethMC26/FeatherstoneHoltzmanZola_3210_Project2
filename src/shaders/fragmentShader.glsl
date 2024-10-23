@@ -8,6 +8,8 @@ in vec4 finalPos; // For accessing the z-coordinate
 // Uniform for scale factor
 uniform float scaleFactor;
 uniform float time;
+uniform vec3 smallColor;
+uniform vec3 bigColor;
 
 vec3 color;
 float ugScale;
@@ -24,7 +26,7 @@ void main()
     vec3 color2 = vec3(0.59, 0.19, 0.04);  // orangev
 
     //Scale colors as shape increases and descreases in size
-    color = mix(color1, color2, scaleFacNorm);
+    color = mix(smallColor, bigColor, scaleFacNorm);
     color += vec3(rand*0.2718281828459045); // Add random value to each rgb(eulers number just for fun)
     
     //scale psychedelic effect with time on a wave 
