@@ -14,7 +14,7 @@ export default class TorusKnot {
         };
 
         // Randomly choose the movement type
-        this.movementType = THREE.MathUtils.randInt(0, 2);
+        //this.movementType = THREE.MathUtils.randInt(0, 2);
 
         // Set transformation vector for linear movement
         this.tVec = new THREE.Vector3(
@@ -24,11 +24,8 @@ export default class TorusKnot {
         );
 
         // Random rotation vector for parabolic and corkscrew movement
-        this.rotationAxis = new THREE.Vector3(
-            THREE.MathUtils.randFloat(0, 1), 
-            THREE.MathUtils.randFloat(0, 1), 
-            THREE.MathUtils.randFloat(0, 1)
-        );
+        this.rotationAxis = new THREE.Vector3(new THREE.Vector3(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI)
+);
 
         // Scaling speed
         this.scaleSpeed = THREE.MathUtils.randFloat(0.001, 2);
@@ -91,7 +88,10 @@ export default class TorusKnot {
         // Movement logic
         switch (this.movementType) {
             case this.movement.LINEAR:
-                this.mesh.translateOnAxis(this.tVec, deltaTime * 3);
+                let linearScale = deltaTime * 0.05;;
+                this.mesh.translateX(this.tVec.x * linearScale);
+                this.mesh.translateY(this.tVec.y * linearScale);
+                this.mesh.translateZ(this.tVec.z * linearScale);
                 break;
             case this.movement.PARABOLIC:
                 this.rotateAroundWorldAxis(this.mesh, this.rotationAxis, deltaTime * 0.0075);
