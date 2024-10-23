@@ -65,41 +65,37 @@ const objectPool = new ObjectPool(scene);
 
 // Update starfield and asteroids
 function animate() {
-
-    //get deltaTime using clock object then make larger since its a small value 
-    //deltaTime is the time between now and last time deltaTime was called 
     let deltaTime = clock.getDelta() * 10;
 
-    //update camera controls 
+    // Update camera controls
     controls.update(deltaTime * 1.2);
     rearViewControls.update(deltaTime * 1.2);
 
-    //have object Pool Update objects 
+    // Update object pool
     objectPool.updateObjects(deltaTime, camera.position);
 
-    //render front view
-    renderer.setViewport(viewport)
-    renderer.setClearColor(0x00000)
-    renderer.setScissorTest( false);
+    // Update speed display
+    document.getElementById('speedDisplay').innerText = `Speed: ${controls.currentSpeed.toFixed(2)}`;
+
+    // Render front view
+    renderer.setViewport(viewport);
+    renderer.setClearColor(0x00000);
+    renderer.setScissorTest(false);
 
     camera.updateProjectionMatrix();
-    
     renderer.render(scene, camera);
 
-    //set rear view camera position to front camera position 
-    rearViewCamera.position.set(camera.position.x, camera.position.y, camera.position.z)
-
+    // Set rear view camera position to front camera position
+    rearViewCamera.position.set(camera.position.x, camera.position.y, camera.position.z);
     rearViewCamera.rotateX(Math.PI);
 
-    //set clear color to grey to look like a mirror 
-    renderer.setClearColor(0x1E202B)
-    //set viewport and scissor
-    renderer.setViewport(rearViewport)
-    renderer.setScissor(rearViewport)
-    renderer.setScissorTest( true);
+    // Set clear color to grey to look like a mirror
+    renderer.setClearColor(0x1E202B);
+    renderer.setViewport(rearViewport);
+    renderer.setScissor(rearViewport);
+    renderer.setScissorTest(true);
 
     rearViewCamera.updateProjectionMatrix();
-    
     renderer.render(scene, rearViewCamera);
 
     requestAnimationFrame(animate);

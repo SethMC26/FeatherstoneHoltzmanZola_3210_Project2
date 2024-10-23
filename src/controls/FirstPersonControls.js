@@ -24,6 +24,7 @@ class FirstPersonControls extends Controls {
 
 		this.movementSpeed = 1.0;
 		this.lookSpeed = 0.005;
+		this.currentSpeed = 0; // Initialize currentSpeed
 
 		this.lookVertical = true;
 		this.autoForward = false;
@@ -159,67 +160,61 @@ class FirstPersonControls extends Controls {
 
 		if ( this.enabled === false ) return;
 
-		if ( this.heightSpeed ) {
+		const dampingFactor = 0.5; // Adjust for more or less damping
+		const inertiaFactor = 0.95; // Adjust for more or less inertia
 
-			const y = MathUtils.clamp( this.object.position.y, this.heightMin, this.heightMax );
-			const heightDelta = y - this.heightMin;
-
-			this._autoSpeedFactor = delta * ( heightDelta * this.heightCoef );
-
-		} else {
-
-			this._autoSpeedFactor = 0.0;
-
+		// Adjust speed based on acceleration and deceleration
+		if (this._accelerate) {
+			this.movementSpeed += 0.1; // Increase speed
+		}
+		if (this._decelerate) {
+			this.movementSpeed = Math.max(0, this.movementSpeed - 0.1); // Decrease speed, but not below 0
 		}
 
-		const actualMoveSpeed = delta * this.movementSpeed;
+		// Calculate movement speed with damping
+		const actualMoveSpeed = delta * this.movementSpeed * dampingFactor;
 
-		if ( this._moveForward || ( this.autoForward && ! this._moveBackward ) ) this.object.translateZ( - ( actualMoveSpeed + this._autoSpeedFactor ) );
-		if ( this._moveBackward ) this.object.translateZ( actualMoveSpeed );
+		// Move the object forward based on the current speed
+		this.object.translateZ(-actualMoveSpeed);
 
-		if ( this._moveLeft ) this.object.translateX( - actualMoveSpeed );
-		if ( this._moveRight ) this.object.translateX( actualMoveSpeed );
+		// Update currentSpeed
+		this.currentSpeed = this.movementSpeed;
 
-		if ( this._moveUp ) this.object.translateY( actualMoveSpeed );
-		if ( this._moveDown ) this.object.translateY( - actualMoveSpeed );
+		// Apply inertia to mouse movement
+		this._pointerX *= inertiaFactor;
+		this._pointerY *= inertiaFactor;
 
 		let actualLookSpeed = delta * this.lookSpeed;
 
-		if ( ! this.activeLook ) {
-
+		if (!this.activeLook) {
 			actualLookSpeed = 0;
-
 		}
 
 		let verticalLookRatio = 1;
 
-		if ( this.constrainVertical ) {
-
-			verticalLookRatio = Math.PI / ( this.verticalMax - this.verticalMin );
-
+		if (this.constrainVertical) {
+			verticalLookRatio = Math.PI / (this.verticalMax - this.verticalMin);
 		}
 
 		this._lon -= this._pointerX * actualLookSpeed;
-		if ( this.lookVertical ) this._lat -= this._pointerY * actualLookSpeed * verticalLookRatio;
+		if (this.lookVertical) this._lat -= this._pointerY * actualLookSpeed * verticalLookRatio;
 
-		this._lat = Math.max( - 85, Math.min( 85, this._lat ) );
+		this._lat = Math.max(-85, Math.min(85, this._lat));
 
-		let phi = MathUtils.degToRad( 90 - this._lat );
-		const theta = MathUtils.degToRad( this._lon );
+		let phi = MathUtils.degToRad(90 - this._lat);
+		const theta = MathUtils.degToRad(this._lon);
 
-		if ( this.constrainVertical ) {
-
-			phi = MathUtils.mapLinear( phi, 0, Math.PI, this.verticalMin, this.verticalMax );
-
+		if (this.constrainVertical) {
+			phi = MathUtils.mapLinear(phi, 0, Math.PI, this.verticalMin, this.verticalMax);
 		}
 
 		const position = this.object.position;
 
-		_targetPosition.setFromSphericalCoords( 1, phi, theta ).add( position );
+		_targetPosition.setFromSphericalCoords(1, phi, theta).add(position);
 
 		this.lookAtVec = _targetPosition.clone();
 
-		this.object.lookAt( _targetPosition );
+		this.object.lookAt(_targetPosition);
 
 	}
 
@@ -300,58 +295,30 @@ function onPointerMove( event ) {
 
 }
 
-function onKeyDown( event ) {
-    if (!this.keyControlsOn) {
-        return
+function onKeyDown(event) {
+    switch (event.code) {
+        case 'KeyW':
+        case 'ArrowUp':
+            this._accelerate = true;
+            break;
+        case 'KeyS':
+        case 'ArrowDown':
+            this._decelerate = true;
+            break;
     }
-
-        switch ( event.code ) {
-
-            case 'ArrowUp':
-            case 'KeyW': this._moveForward = true; break;
-
-            case 'ArrowLeft':
-            case 'KeyA': this._moveLeft = true; break;
-
-            case 'ArrowDown':
-            case 'KeyS': this._moveBackward = true; break;
-
-            case 'ArrowRight':
-            case 'KeyD': this._moveRight = true; break;
-
-            case 'KeyR': this._moveUp = true; break;
-            case 'KeyF': this._moveDown = true; break;
-
-        }
-    
-
 }
 
-function onKeyUp( event ) {
-    if (!this.keyControlsOn) {
-        return
+function onKeyUp(event) {
+    switch (event.code) {
+        case 'KeyW':
+        case 'ArrowUp':
+            this._accelerate = false;
+            break;
+        case 'KeyS':
+        case 'ArrowDown':
+            this._decelerate = false;
+            break;
     }
-
-        switch ( event.code ) {
-
-            case 'ArrowUp':
-            case 'KeyW': this._moveForward = false; break;
-
-            case 'ArrowLeft':
-            case 'KeyA': this._moveLeft = false; break;
-
-            case 'ArrowDown':
-            case 'KeyS': this._moveBackward = false; break;
-
-            case 'ArrowRight':
-            case 'KeyD': this._moveRight = false; break;
-
-            case 'KeyR': this._moveUp = false; break;
-            case 'KeyF': this._moveDown = false; break;
-
-        }
-    
-
 }
 
 function onContextMenu( event ) {
