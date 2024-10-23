@@ -43,11 +43,11 @@ export default class ObjectPool {
             this.asteroids.push(newAsteroid);
         }
         // Create torus knots
-        for (let i = 0; i < torusKnotsNum; i++) {
+        for (let i = 0; i < torusKnots; i++) {
             let newTorusKnot = new TorusKnot();
             scene.add(newTorusKnot.mesh);
             this.torusKnots.push(newTorusKnot);
-        } s.torusKnots.push(newTorusKnot); 
+        }
     }
 
 
