@@ -124,3 +124,4 @@ function onWindowResize() {
 
     controls.handleResize();
 }
+

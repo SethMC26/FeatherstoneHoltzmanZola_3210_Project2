@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+  <audio id="background-music" loop>
+    <source src="starwars.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
   <head>
     <title>Three.js Dual Camera View with Infinite Starfield with Asteroids</title>
     <style>
@@ -12,9 +17,29 @@
       }
     </style>
   </head>
+
   <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script type="module" src="src/main.js"></script>
 
+    <script>
+      // Get the audio element
+      const backgroundMusic = document.getElementById('background-music');
+
+      // Wait for user interaction to play music (due to browser autoplay policies)
+      document.body.addEventListener('click', () => {
+        if (backgroundMusic.paused) {
+          backgroundMusic.play();
+        }
+      });
+
+      // Optional: Start the music after a short delay on user interaction
+      window.onload = function() {
+        backgroundMusic.play().catch(function(error) {
+          console.log('User interaction required to play music');
+        });
+      };
+    </script>
   </body>
 </html>
+
