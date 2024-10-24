@@ -56,11 +56,11 @@ export default class ObjectPool {
      * @param {Number} deltaTime Delta time to determine animation speed.
      * @param {THREE.Vector3} cameraPosition Camera current position to update objects with 
      */
-    updateObjects(deltaTime, cameraPosition) {
+    updateObjects(deltaTime, frontCameraPosition, rearCameraPosition) {
         //check distance of stars and move starfields constantly forwards
         for (var starField of this.starFields) {
-            if (starField.mesh.position.distanceTo(cameraPosition) > 450) {
-                starField.resetObject(cameraPosition);
+            if (starField.mesh.position.distanceTo(frontCameraPosition) > 450) {
+                starField.resetObject(frontCameraPosition);
             }
         }
 
@@ -69,26 +69,29 @@ export default class ObjectPool {
             //update drift 
             asteroid.updateObject(deltaTime);
 
-            // Reset the asteroid if it is too far from camera
-            if (asteroid.mesh.position.distanceTo(cameraPosition) > 2000) {
-                asteroid.resetObject(cameraPosition)
+            // Check distance for both cameras
+            const distanceToFront = asteroid.mesh.position.distanceTo(frontCameraPosition);
+            const distanceToRear = asteroid.mesh.position.distanceTo(rearCameraPosition);
+
+            if (distanceToFront > 7000 && distanceToRear > 7000) {
+                asteroid.resetObject(frontCameraPosition);
             }
 
             //check object intersects camera 
-            if (asteroid.intersectsPosition(cameraPosition)) {
-                console.log("You hit an asteroid! Pos: ", cameraPosition);
+            if (asteroid.intersectsPosition(frontCameraPosition)) {
+                console.log("You hit an asteroid! Pos: ", frontCameraPosition);
             }
 
             // Update torus knots
         this.torusKnots.forEach(torusKnot => {
             torusKnot.updateObject(deltaTime);
 
-            if (torusKnot.mesh.position.distanceTo(cameraPosition) > 2000) {
-                torusKnot.resetObject(cameraPosition);
+            if (torusKnot.mesh.position.distanceTo(frontCameraPosition) > 2000) {
+                torusKnot.resetObject(frontCameraPosition);
             }
 
-            if (torusKnot.intersectsPosition(cameraPosition)) {
-                console.log("You hit a torus knot! Pos: ", cameraPosition);
+            if (torusKnot.intersectsPosition(frontCameraPosition)) {
+                console.log("You hit a torus knot! Pos: ", frontCameraPosition);
             }
         });
 

@@ -1,5 +1,6 @@
 import { FirstPersonControls } from './controls/FirstPersonControls';
 import ObjectPool from "./spaceObjects/ObjectPool";
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 //create Clock to use for time and delta time
 const clock = new THREE.Clock(); 
@@ -63,45 +64,77 @@ scene.add(light);
 //create new ObjectPool to create and manage objects in our scene
 const objectPool = new ObjectPool(scene);
 
-// Update starfield and asteroids
-function animate() {
-    let deltaTime = clock.getDelta() * 10;
+// Create the loader
+const gltfLoader = new GLTFLoader();
 
-    // Update camera controls
-    controls.update(deltaTime * 1.2);
-    rearViewControls.update(deltaTime * 1.2);
+// Load the GLB model
+gltfLoader.load('src/textures/galaxy.glb', (gltf) => {
+    const model = gltf.scene;
+    scene.add(model);
 
-    // Update object pool
-    objectPool.updateObjects(deltaTime, camera.position);
+    // Center the model and scale it up
+    model.position.set(0, 0, 0);
+    model.scale.set(1000, 1000, 1000); // Adjust scale as needed
 
-    // Update speed display
-    document.getElementById('speedDisplay').innerText = `Speed: ${controls.currentSpeed.toFixed(2)}`;
+    // Ensure the model is always rendered behind other objects
+    model.traverse((child) => {
+        if (child.isMesh) {
+            child.material.depthWrite = false;
+            child.material.depthTest = false; // Disable depth testing
+        }
+    });
 
-    // Render front view
-    renderer.setViewport(viewport);
-    renderer.setClearColor(0x00000);
-    renderer.setScissorTest(false);
+    // Update model position in the animation loop
+    function updateModelPosition() {
+        model.position.copy(camera.position);
+    }
 
-    camera.updateProjectionMatrix();
-    renderer.render(scene, camera);
+    // Call updateModelPosition in your animation loop
+    function animate() {
+        updateModelPosition();
+        let deltaTime = clock.getDelta() * 10;
 
-    // Set rear view camera position to front camera position
-    rearViewCamera.position.set(camera.position.x, camera.position.y, camera.position.z);
-    rearViewCamera.rotateX(Math.PI);
+        // Update camera controls
+        controls.update(deltaTime * 1.2);
+        rearViewControls.update(deltaTime * 1.2);
 
-    // Set clear color to grey to look like a mirror
-    renderer.setClearColor(0x1E202B);
-    renderer.setViewport(rearViewport);
-    renderer.setScissor(rearViewport);
-    renderer.setScissorTest(true);
+        // Update object pool
+        objectPool.updateObjects(deltaTime, camera.position, rearViewCamera.position);
 
-    rearViewCamera.updateProjectionMatrix();
-    renderer.render(scene, rearViewCamera);
+        // Update speed display
+        if (controls.currentSpeed !== undefined) {
+            document.getElementById('speedDisplay').innerText = `Speed: ${controls.currentSpeed.toFixed(2)}`;
+        } else {
+            document.getElementById('speedDisplay').innerText = 'Speed: 0';
+        }
 
-    requestAnimationFrame(animate);
-}
- // Start the animation loop
- animate();
+        // Render front view
+        renderer.setViewport(viewport);
+        renderer.setClearColor(0x00000);
+        renderer.setScissorTest(false);
+
+        camera.updateProjectionMatrix();
+        renderer.render(scene, camera);
+
+        // Set rear view camera position to front camera position
+        rearViewCamera.position.set(camera.position.x, camera.position.y, camera.position.z);
+        rearViewCamera.rotateX(Math.PI);
+
+        // Set clear color to grey to look like a mirror
+        renderer.setClearColor(0x1E202B);
+        renderer.setViewport(rearViewport);
+        renderer.setScissor(rearViewport);
+        renderer.setScissorTest(true);
+
+        rearViewCamera.updateProjectionMatrix();
+        renderer.render(scene, rearViewCamera);
+
+        requestAnimationFrame(animate);
+    }
+    animate();
+}, undefined, (error) => {
+    console.error('An error occurred while loading the GLB model:', error);
+});
 
 // Handle window resize
 window.addEventListener("resize", onWindowResize, false);

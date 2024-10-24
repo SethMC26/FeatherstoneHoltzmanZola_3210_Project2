@@ -74,9 +74,9 @@ export default class Asteroid {
         this.mesh = new THREE.Mesh(this.geometry, this.material);
    
         // Randomize the position, size, and rotation of each asteroid
-        this.mesh.position.x = THREE.MathUtils.randFloatSpread(2000); // Random x position
-        this.mesh.position.y = THREE.MathUtils.randFloatSpread(2000); // Random y position
-        this.mesh.position.z = THREE.MathUtils.randFloat(-1000, 350); // Random z (depth)
+        this.mesh.position.x = THREE.MathUtils.randFloatSpread(4000);
+        this.mesh.position.y = THREE.MathUtils.randFloatSpread(4000);
+        this.mesh.position.z = THREE.MathUtils.randFloat(-2000, 700);
 
         //compute bounding box 
         this.boundingBox = new THREE.Box3().setFromObject(this.mesh);
@@ -95,9 +95,9 @@ export default class Asteroid {
     resetObject(cameraPos) {
         let randomSign = Math.random() < 0.5 ? -1 : 1;
 
-        this.mesh.position.z = cameraPos.z + 1000 * randomSign; // Reset to far distance
-        this.mesh.position.x = cameraPos.x + THREE.MathUtils.randFloatSpread(1500); // Randomize x position
-        this.mesh.position.y = cameraPos.y + THREE.MathUtils.randFloatSpread(1500); // Randomize y position
+        this.mesh.position.z = cameraPos.z + 2000 * randomSign; // Reset to a further distance
+        this.mesh.position.x = cameraPos.x + THREE.MathUtils.randFloatSpread(3000); // Randomize x position
+        this.mesh.position.y = cameraPos.y + THREE.MathUtils.randFloatSpread(3000); // Randomize y position
     }
 
     /**
