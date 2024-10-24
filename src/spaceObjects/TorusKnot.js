@@ -51,6 +51,9 @@ export default class TorusKnot {
             uniforms: this.uniforms
         });
 
+        //additional rasterization for material
+        this.material.depthFunc = THREE.NotEqualDepth
+
         // Create the mesh
         this.mesh = new THREE.Mesh(this.geometry, this.material);
 
@@ -115,7 +118,20 @@ export default class TorusKnot {
      * @returns {Boolean} True if the position is inside the bounding box, otherwise false
      */
     intersectsPosition(position) {
-        return this.boundingBox.containsPoint(position);
+        if (!this.boundingBox.containsPoint(position)) {
+            return false;
+        }
+
+        this.movementType = this.movement.LINEAR;
+
+        this.tVec.x *= -1;
+        this.tVec.y *= -1;
+        this.mesh.position.z -= 10;
+        this.tVec.z = -10;
+        
+        this.updateObject(5)
+
+        return true;
     }
 
    //From Prof. Stuetzle unit6 Lecture notes nothing has been modified 
