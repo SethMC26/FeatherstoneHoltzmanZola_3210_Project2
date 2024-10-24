@@ -92,16 +92,8 @@ export default class ObjectPool {
 
             if (torusKnot.intersectsPosition(frontCameraPosition)) {
                 console.log("You hit a torus knot! Pos: ", frontCameraPosition);
-            }
-        });
-
-                /* Might want this in future or something similar
-                asteroids.forEach((asteroidToCheck) => {
-                    if (asteroid.intersectsBox(asteroidToCheck.boundingBox)) {
-                        console.log("Asteroids hit eachother!")
-                    }
-                });
-                */
-            }
+                }
+            });
+        }
     }
 }
