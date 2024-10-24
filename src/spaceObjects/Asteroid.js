@@ -93,6 +93,7 @@ export default class Asteroid {
      * @note API name could be improved possibly 
      */
     resetObject(cameraPos) {
+        this.scaleFactor = 1;
         let randomSign = Math.random() < 0.5 ? -1 : 1;
 
         this.mesh.position.z = cameraPos.z + 1000 * randomSign; // Reset to far distance
