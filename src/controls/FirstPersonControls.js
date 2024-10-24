@@ -1,362 +1,365 @@
 //Below code has been ripped directly from threeJS library to make modifications
 //Source: https://github.com/mrdoob/three.js/blob/master/examples/jsm/controls/FirstPersonControls.js
 
-import { Controls, MathUtils, Spherical, Vector3 } from "three";
+import {
+	Controls,
+	MathUtils,
+	Spherical,
+	Vector3
+} from 'three';
+
 
 const _lookDirection = new Vector3();
 const _spherical = new Spherical();
 const _target = new Vector3();
 const _targetPosition = new Vector3();
 
-/**
- * FirstPersonControls class
- * @extends Controls
- */
 class FirstPersonControls extends Controls {
-  /**
-   * Creates a new FirstPersonControls object
-   * @param {THREE.Object3D} object
-   * @param {HTMLElement} domElement
-   */
-  constructor(object, domElement = null) {
-    super(object, domElement);
 
-    // API
+	constructor( object, domElement = null ) {
 
-    this.movementSpeed = 1.0;
-    this.lookSpeed = 0.005;
-    this.currentSpeed = 0; // Initialize currentSpeed
+		super( object, domElement );
 
-    this.lookVertical = true;
-    this.autoForward = false;
+		// API
 
-    this.activeLook = true;
+		this.movementSpeed = 1.0;
+		this.lookSpeed = 0.005;
 
-    this.heightSpeed = false;
-    this.heightCoef = 1.0;
-    this.heightMin = 0.0;
-    this.heightMax = 1.0;
+		this.lookVertical = true;
+		this.autoForward = false;
 
-    this.constrainVertical = false;
-    this.verticalMin = 0;
-    this.verticalMax = Math.PI;
+		this.activeLook = true;
 
-    this.mouseDragOn = false;
+		this.heightSpeed = false;
+		this.heightCoef = 1.0;
+		this.heightMin = 0.0;
+		this.heightMax = 1.0;
 
-    //add ability to turn off keyboard controls
-    this.keyControlsOn = true;
-    this.mousePointersOn = true;
+		this.constrainVertical = false;
+		this.verticalMin = 0;
+		this.verticalMax = Math.PI;
 
-    //add ability to see current lookAtVector
-    this.lookAtVec = new THREE.Vector3();
-    // internals
+		this.mouseDragOn = false;
 
-    this._autoSpeedFactor = 0.0;
+        //add ability to turn off keyboard controls
+        this.keyControlsOn = true;
+        this.mousePointersOn = true;
 
-    this._pointerX = 0;
-    this._pointerY = 0;
+		//add ability to see current lookAtVector
+		this.lookAtVec = new THREE.Vector3();
+		// internals
 
-    this._accelerate = false;
-    this._decelerate = false;
+		this._autoSpeedFactor = 0.0;
 
-    this._viewHalfX = 0;
-    this._viewHalfY = 0;
+		this._pointerX = 0;
+		this._pointerY = 0;
 
-    this._lat = 0;
-    this._lon = 0;
+		this._moveForward = false;
+		this._moveBackward = false;
+		this._moveLeft = false;
+		this._moveRight = false;
 
-    // Roll effect properties
-    this.rollAngle = 0; // Current roll angle in radians
-    this.maxRollAngle = Math.PI / 8; // Maximum roll angle (~22.5 degrees)
-    this.rollSpeed = 0.1; // Speed at which the camera rolls towards the target angle
+		this._viewHalfX = 0;
+		this._viewHalfY = 0;
 
-    // event listeners
+		this._lat = 0;
+		this._lon = 0;
 
-    this._onPointerMove = onPointerMove.bind(this);
-    this._onPointerDown = onPointerDown.bind(this);
-    this._onPointerUp = onPointerUp.bind(this);
-    this._onContextMenu = onContextMenu.bind(this);
-    this._onKeyDown = onKeyDown.bind(this);
-    this._onKeyUp = onKeyUp.bind(this);
+		// event listeners
 
-    //
+		this._onPointerMove = onPointerMove.bind( this );
+		this._onPointerDown = onPointerDown.bind( this );
+		this._onPointerUp = onPointerUp.bind( this );
+		this._onContextMenu = onContextMenu.bind( this );
+		this._onKeyDown = onKeyDown.bind( this );
+		this._onKeyUp = onKeyUp.bind( this );
 
-    if (domElement !== null) {
-      this.connect();
+		//
 
-      this.handleResize();
-    }
+		if ( domElement !== null ) {
 
-    this._setOrientation();
-  }
+			this.connect();
 
-  /**
-   * Connects the controls
-   */
-  connect() {
-    window.addEventListener("keydown", this._onKeyDown);
-    window.addEventListener("keyup", this._onKeyUp);
+			this.handleResize();
 
-    this.domElement.addEventListener("pointermove", this._onPointerMove);
-    this.domElement.addEventListener("pointerdown", this._onPointerDown);
-    this.domElement.addEventListener("pointerup", this._onPointerUp);
-    this.domElement.addEventListener("contextmenu", this._onContextMenu);
-  }
+		}
 
-  /**
-   * Disconnects the controls
-   */
-  disconnect() {
-    window.removeEventListener("keydown", this._onKeyDown);
-    window.removeEventListener("keyup", this._onKeyUp);
+		this._setOrientation();
 
-    this.domElement.removeEventListener("pointerdown", this._onPointerMove);
-    this.domElement.removeEventListener("pointermove", this._onPointerDown);
-    this.domElement.removeEventListener("pointerup", this._onPointerUp);
-    this.domElement.removeEventListener("contextmenu", this._onContextMenu);
-  }
+	}
 
-  /**
-   * Disposes of the controls
-   */
-  dispose() {
-    this.disconnect();
-  }
+	connect() {
 
-  /**
-   * Handles the resize of the window
-   */
-  handleResize() {
-    if (this.domElement === document) {
-      this._viewHalfX = window.innerWidth / 2;
-      this._viewHalfY = window.innerHeight / 2;
-    } else {
-      this._viewHalfX = this.domElement.offsetWidth / 2;
-      this._viewHalfY = this.domElement.offsetHeight / 2;
-    }
-  }
+		window.addEventListener( 'keydown', this._onKeyDown );
+		window.addEventListener( 'keyup', this._onKeyUp );
 
-  /**
-   * Looks at a given point
-   * @param {number | THREE.Vector3} x
-   * @param {number} y
-   * @param {number} z
-   */
-  lookAt(x, y, z) {
-    if (x.isVector3) {
-      _target.copy(x);
-    } else {
-      _target.set(x, y, z);
-    }
+		this.domElement.addEventListener( 'pointermove', this._onPointerMove );
+		this.domElement.addEventListener( 'pointerdown', this._onPointerDown );
+		this.domElement.addEventListener( 'pointerup', this._onPointerUp );
+		this.domElement.addEventListener( 'contextmenu', this._onContextMenu );
 
-    this.lookAtVec = _target;
-    this.object.lookAt(_target);
+	}
 
-    this._setOrientation();
+	disconnect() {
 
-    return this;
-  }
+		window.removeEventListener( 'keydown', this._onKeyDown );
+		window.removeEventListener( 'keyup', this._onKeyUp );
 
-  /**
-   * Updates the controls
-   * @param {number} delta
-   */
-  update(delta) {
-    if (this.enabled === false) return;
+		this.domElement.removeEventListener( 'pointerdown', this._onPointerMove );
+		this.domElement.removeEventListener( 'pointermove', this._onPointerDown );
+		this.domElement.removeEventListener( 'pointerup', this._onPointerUp );
+		this.domElement.removeEventListener( 'contextmenu', this._onContextMenu );
 
-    const dampingFactor = 0.5; // Adjust for more or less damping
-    const inertiaFactor = 0.95; // Adjust for more or less inertia
+	}
 
-    // Adjust speed based on acceleration and deceleration
-    if (this._accelerate) {
-      this.movementSpeed += 0.1; // Increase speed
-    }
-    if (this._decelerate) {
-      this.movementSpeed = Math.max(0, this.movementSpeed - 0.1); // Decrease speed, but not below 0
-    }
+	dispose() {
 
-    // Calculate movement speed with damping
-    const actualMoveSpeed = delta * this.movementSpeed * dampingFactor;
+		this.disconnect();
 
-    // Move the object forward based on the current speed
-    this.object.translateZ(-actualMoveSpeed);
+	}
 
-    // Update currentSpeed
-    this.currentSpeed = this.movementSpeed;
+	handleResize() {
 
-    // Apply inertia to mouse movement
-    this._pointerX *= inertiaFactor;
-    this._pointerY *= inertiaFactor;
+		if ( this.domElement === document ) {
 
-    // Calculate look speed
-    let actualLookSpeed = delta * this.lookSpeed;
-    if (!this.activeLook) {
-        actualLookSpeed = 0;
-    }
+			this._viewHalfX = window.innerWidth / 2;
+			this._viewHalfY = window.innerHeight / 2;
 
-    // Vertical look ratio for constraining vertical movement
-    let verticalLookRatio = 1;
-    if (this.constrainVertical) {
-        verticalLookRatio = Math.PI / (this.verticalMax - this.verticalMin);
-    }
+		} else {
 
-    // Update longitude and latitude based on mouse movement
-    this._lon -= this._pointerX * actualLookSpeed;
-    if (this.lookVertical) this._lat -= this._pointerY * actualLookSpeed * verticalLookRatio;
+			this._viewHalfX = this.domElement.offsetWidth / 2;
+			this._viewHalfY = this.domElement.offsetHeight / 2;
 
-    // Clamp latitude to prevent flipping over
-    this._lat = Math.max(-85, Math.min(85, this._lat));
+		}
 
-    // Convert lat/lon to spherical coordinates
-    let phi = MathUtils.degToRad(90 - this._lat);
-    const theta = MathUtils.degToRad(this._lon);
+	}
 
-    // Constrain vertical movement if enabled
-    if (this.constrainVertical) {
-        phi = MathUtils.mapLinear(phi, 0, Math.PI, this.verticalMin, this.verticalMax);
-    }
+	lookAt( x, y, z ) {
 
-    // Calculate target position based on spherical coordinates
-    const position = this.object.position;
-    _targetPosition.setFromSphericalCoords(1, phi, theta).add(position);
+		if ( x.isVector3 ) {
 
-    // Make the camera look at the target position
-    this.object.lookAt(_targetPosition);
+			_target.copy( x );
 
-    // --- Roll Effect Integration ---
+		} else {
 
-    // Calculate the target roll based on pointer X position
-    const pointerXNormalized = this._pointerX / this._viewHalfX; // Normalize to range [-1, 1]
-    const targetRoll = this.maxRollAngle * -pointerXNormalized; // Invert the normalized pointer value
+			_target.set( x, y, z );
 
-    // Smoothly interpolate the current roll angle towards the target roll
-    this.rollAngle += (targetRoll - this.rollAngle) * this.rollSpeed;
+		}
 
-    // Apply the roll rotation to the camera
-    this.object.rotation.z = this.rollAngle;
+		this.lookAtVec = _target;
+		this.object.lookAt( _target );
 
-    // --- End Roll Effect Integration ---
-  }
+		this._setOrientation();
 
-  /**
-   * Sets the orientation of the camera
-   */
-  _setOrientation() {
-    const quaternion = this.object.quaternion;
+		return this;
 
-    _lookDirection.set(0, 0, -1).applyQuaternion(quaternion);
-    _spherical.setFromVector3(_lookDirection);
+	}
 
-    this._lat = 90 - MathUtils.radToDeg(_spherical.phi);
-    this._lon = MathUtils.radToDeg(_spherical.theta);
-  }
+	update( delta ) {
+
+		if ( this.enabled === false ) return;
+
+		if ( this.heightSpeed ) {
+
+			const y = MathUtils.clamp( this.object.position.y, this.heightMin, this.heightMax );
+			const heightDelta = y - this.heightMin;
+
+			this._autoSpeedFactor = delta * ( heightDelta * this.heightCoef );
+
+		} else {
+
+			this._autoSpeedFactor = 0.0;
+
+		}
+
+		const actualMoveSpeed = delta * this.movementSpeed;
+
+		if ( this._moveForward || ( this.autoForward && ! this._moveBackward ) ) this.object.translateZ( - ( actualMoveSpeed + this._autoSpeedFactor ) );
+		if ( this._moveBackward ) this.object.translateZ( actualMoveSpeed );
+
+		if ( this._moveLeft ) this.object.translateX( - actualMoveSpeed );
+		if ( this._moveRight ) this.object.translateX( actualMoveSpeed );
+
+		if ( this._moveUp ) this.object.translateY( actualMoveSpeed );
+		if ( this._moveDown ) this.object.translateY( - actualMoveSpeed );
+
+		let actualLookSpeed = delta * this.lookSpeed;
+
+		if ( ! this.activeLook ) {
+
+			actualLookSpeed = 0;
+
+		}
+
+		let verticalLookRatio = 1;
+
+		if ( this.constrainVertical ) {
+
+			verticalLookRatio = Math.PI / ( this.verticalMax - this.verticalMin );
+
+		}
+
+		this._lon -= this._pointerX * actualLookSpeed;
+		if ( this.lookVertical ) this._lat -= this._pointerY * actualLookSpeed * verticalLookRatio;
+
+		this._lat = Math.max( - 85, Math.min( 85, this._lat ) );
+
+		let phi = MathUtils.degToRad( 90 - this._lat );
+		const theta = MathUtils.degToRad( this._lon );
+
+		if ( this.constrainVertical ) {
+
+			phi = MathUtils.mapLinear( phi, 0, Math.PI, this.verticalMin, this.verticalMax );
+
+		}
+
+		const position = this.object.position;
+
+		_targetPosition.setFromSphericalCoords( 1, phi, theta ).add( position );
+
+		this.lookAtVec = _targetPosition.clone();
+
+		this.object.lookAt( _targetPosition );
+
+	}
+
+	_setOrientation() {
+
+		const quaternion = this.object.quaternion;
+
+		_lookDirection.set( 0, 0, - 1 ).applyQuaternion( quaternion );
+		_spherical.setFromVector3( _lookDirection );
+
+		this._lat = 90 - MathUtils.radToDeg( _spherical.phi );
+		this._lon = MathUtils.radToDeg( _spherical.theta );
+
+	}
+
 }
 
-/**
- * Handles pointer down events
- * @param {Event} event
- */
-function onPointerDown(event) {
-  if (!this.mousePointersOn) {
-    return;
-  }
+function onPointerDown( event ) {
 
-  if (this.domElement !== document) {
-    this.domElement.focus();
-  }
-
-  if (this.activeLook) {
-    switch (event.button) {
-      case 0:
-        this._accelerate = true;
-        break;
-      case 2:
-        this._decelerate = true;
-        break;
+    if (!this.mousePointersOn) {
+        return
     }
-  }
-  this.mouseDragOn = true;
+
+	if ( this.domElement !== document ) {
+
+		this.domElement.focus();
+
+	}
+
+	if ( this.activeLook ) {
+
+		switch ( event.button ) {
+
+			case 0: this._moveForward = true; break;
+			case 2: this._moveBackward = true; break;
+
+		}
+
+	}
+
+	this.mouseDragOn = true;
+
 }
 
-/**
- * Handles pointer up events
- * @param {Event} event
- */
-function onPointerUp(event) {
-  if (!this.mousePointersOn) {
-    return;
-  }
-
-  if (this.activeLook) {
-    switch (event.button) {
-      case 0:
-        this._accelerate = false;
-        break;
-      case 2:
-        this._decelerate = false;
-        break;
+function onPointerUp( event ) {
+    if (!this.mousePointersOn) {
+        return
     }
-  }
 
-  this.mouseDragOn = false;
+	if ( this.activeLook ) {
+
+		switch ( event.button ) {
+
+			case 0: this._moveForward = false; break;
+			case 2: this._moveBackward = false; break;
+
+		}
+
+	}
+
+	this.mouseDragOn = false;
+
 }
 
-/**
- * Handles pointer move events
- * @param {Event} event
- */
-function onPointerMove(event) {
-  if (this.domElement === document) {
-    this._pointerX = event.pageX - this._viewHalfX;
-    this._pointerY = event.pageY - this._viewHalfY;
-  } else {
-    this._pointerX = event.pageX - this.domElement.offsetLeft - this._viewHalfX;
-    this._pointerY = event.pageY - this.domElement.offsetTop - this._viewHalfY;
-  }
+function onPointerMove( event ) {
+
+	if ( this.domElement === document ) {
+
+		this._pointerX = event.pageX - this._viewHalfX;
+		this._pointerY = event.pageY - this._viewHalfY;
+
+	} else {
+
+		this._pointerX = event.pageX - this.domElement.offsetLeft - this._viewHalfX;
+		this._pointerY = event.pageY - this.domElement.offsetTop - this._viewHalfY;
+
+	}
+
 }
 
-/**
- * Handles key down events
- * @param {Event} event
- */
-function onKeyDown(event) {
-  switch (event.code) {
-    case "KeyW":
-    case "ArrowUp":
-      this._accelerate = true;
-      break;
-    case "KeyS":
-    case "ArrowDown":
-      this._decelerate = true;
-      break;
-  }
+function onKeyDown( event ) {
+    if (!this.keyControlsOn) {
+        return
+    }
+
+        switch ( event.code ) {
+
+            case 'ArrowUp':
+            case 'KeyW': this._moveForward = true; break;
+
+            case 'ArrowLeft':
+            case 'KeyA': this._moveLeft = true; break;
+
+            case 'ArrowDown':
+            case 'KeyS': this._moveBackward = true; break;
+
+            case 'ArrowRight':
+            case 'KeyD': this._moveRight = true; break;
+
+            case 'KeyR': this._moveUp = true; break;
+            case 'KeyF': this._moveDown = true; break;
+
+        }
+    
+
 }
 
-/**
- * Handles key up events
- * @param {Event} event
- */
-function onKeyUp(event) {
-  switch (event.code) {
-    case "KeyW":
-    case "ArrowUp":
-      this._accelerate = false;
-      break;
-    case "KeyS":
-    case "ArrowDown":
-      this._decelerate = false;
-      break;
-  }
+function onKeyUp( event ) {
+    if (!this.keyControlsOn) {
+        return
+    }
+
+        switch ( event.code ) {
+
+            case 'ArrowUp':
+            case 'KeyW': this._moveForward = false; break;
+
+            case 'ArrowLeft':
+            case 'KeyA': this._moveLeft = false; break;
+
+            case 'ArrowDown':
+            case 'KeyS': this._moveBackward = false; break;
+
+            case 'ArrowRight':
+            case 'KeyD': this._moveRight = false; break;
+
+            case 'KeyR': this._moveUp = false; break;
+            case 'KeyF': this._moveDown = false; break;
+
+        }
+    
+
 }
 
-/**
- * Handles context menu events
- * @param {Event} event
- */
-function onContextMenu(event) {
-  if (this.enabled === false) return;
+function onContextMenu( event ) {
 
-  event.preventDefault();
+	if ( this.enabled === false ) return;
+
+	event.preventDefault();
+
 }
 
 export { FirstPersonControls };

@@ -56,7 +56,7 @@ export default class ObjectPool {
      * @param {Number} deltaTime Delta time to determine animation speed.
      * @param {THREE.Vector3} cameraPosition Camera current position to update objects with 
      */
-    updateObjects(deltaTime, frontCameraPosition, rearCameraPosition) {
+    updateObjects(deltaTime, frontCameraPosition) {
         //check distance of stars and move starfields constantly forwards
         for (var starField of this.starFields) {
             if (starField.mesh.position.distanceTo(frontCameraPosition) > 450) {
@@ -71,9 +71,8 @@ export default class ObjectPool {
 
             // Check distance for both cameras
             const distanceToFront = asteroid.mesh.position.distanceTo(frontCameraPosition);
-            const distanceToRear = asteroid.mesh.position.distanceTo(rearCameraPosition);
 
-            if (distanceToFront > 7000 && distanceToRear > 7000) {
+            if (distanceToFront > 3000) {
                 asteroid.resetObject(frontCameraPosition);
             }
 

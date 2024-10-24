@@ -28,7 +28,7 @@ renderer.getCurrentViewport(viewport);
 
 //create controls for main camera
 const controls = new FirstPersonControls(camera, renderer.domElement);
-controls.autoForward = false; // Initially set autoForward to false to pause movement
+controls.autoForward = true; // Initially set autoForward to false to pause movement
 controls.movementSpeed = 30;
 controls.constrainVertical = true;
 controls.keyControlsOn = false;
@@ -88,18 +88,13 @@ function animate() {
     let deltaTime = clock.getDelta() * 10;
 
     // Update camera controls
-    controls.update(deltaTime * 1.2);
-    rearViewControls.update(deltaTime * 1.2);
+    controls.update(deltaTime );
+    rearViewControls.update(deltaTime);
 
     // Update object pool
-    objectPool.updateObjects(deltaTime, camera.position, rearViewCamera.position);
+    objectPool.updateObjects(deltaTime, camera.position);
 
-        // Update speed display
-        if (controls.currentSpeed !== undefined) {
-            document.getElementById('speedDisplay').innerText = `Speed: ${controls.currentSpeed.toFixed(2)}`;
-        } else {
-            document.getElementById('speedDisplay').innerText = 'Speed: 0';
-        }
+        
 
     // Render front view
     renderer.setViewport(viewport);
