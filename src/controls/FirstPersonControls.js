@@ -55,16 +55,19 @@ class FirstPersonControls extends Controls {
 		this._pointerX = 0;
 		this._pointerY = 0;
 
-		this._moveForward = false;
-		this._moveBackward = false;
-		this._moveLeft = false;
-		this._moveRight = false;
+		this._accelerate = false;
+		this._decelerate = false;
 
 		this._viewHalfX = 0;
 		this._viewHalfY = 0;
 
 		this._lat = 0;
 		this._lon = 0;
+
+		// Roll effect properties
+		this.rollAngle = 0;          // Current roll angle in radians
+		this.maxRollAngle = Math.PI / 8; // Maximum roll angle (~22.5 degrees)
+		this.rollSpeed = 0.1;        // Speed at which the camera rolls towards the target angle
 
 		// event listeners
 
@@ -196,6 +199,7 @@ class FirstPersonControls extends Controls {
 			verticalLookRatio = Math.PI / (this.verticalMax - this.verticalMin);
 		}
 
+		// Mouse movement
 		this._lon -= this._pointerX * actualLookSpeed;
 		if (this.lookVertical) this._lat -= this._pointerY * actualLookSpeed * verticalLookRatio;
 
@@ -212,9 +216,21 @@ class FirstPersonControls extends Controls {
 
 		_targetPosition.setFromSphericalCoords(1, phi, theta).add(position);
 
-		this.lookAtVec = _targetPosition.clone();
-
 		this.object.lookAt(_targetPosition);
+
+		// --- Roll Effect Integration ---
+
+		// Calculate the target roll based on pointer X position
+		const pointerXNormalized = this._pointerX / this._viewHalfX; // Normalize to range [-1, 1]
+		const targetRoll = this.maxRollAngle * pointerXNormalized;
+
+		// Smoothly interpolate the current roll angle towards the target roll
+		this.rollAngle += (targetRoll - this.rollAngle) * this.rollSpeed;
+
+		// Apply the roll rotation to the camera
+		this.object.rotation.z = this.rollAngle;
+
+		// --- End Roll Effect Integration ---
 
 	}
 
@@ -248,8 +264,8 @@ function onPointerDown( event ) {
 
 		switch ( event.button ) {
 
-			case 0: this._moveForward = true; break;
-			case 2: this._moveBackward = true; break;
+			case 0: this._accelerate = true; break;
+			case 2: this._decelerate = true; break;
 
 		}
 
@@ -268,8 +284,8 @@ function onPointerUp( event ) {
 
 		switch ( event.button ) {
 
-			case 0: this._moveForward = false; break;
-			case 2: this._moveBackward = false; break;
+			case 0: this._accelerate = false; break;
+			case 2: this._decelerate = false; break;
 
 		}
 
